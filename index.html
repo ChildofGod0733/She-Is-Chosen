@@ -1,249 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>She is Chosen</title>
 
-<style>
+<link rel="stylesheet" href="style.css">
 
-body{
-font-family: "Georgia", serif;
-background:#fff7fb;
-margin:0;
-color:#5c4a57;
-}
-
-header{
-background:#ffd6ec;
-padding:25px;
-text-align:center;
-}
-
-header h1{
-margin:0;
-font-size:32px;
-}
-
-header p{
-font-style:italic;
-}
-
-nav{
-display:flex;
-justify-content:center;
-gap:20px;
-background:#ffe8f3;
-padding:10px;
-flex-wrap:wrap;
-}
-
-nav a{
-text-decoration:none;
-color:#5c4a57;
-font-weight:bold;
-}
-
-.section{
-padding:25px;
-max-width:800px;
-margin:auto;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:12px;
-margin-bottom:20px;
-box-shadow:0 4px 8px rgba(0,0,0,0.05);
-}
-
-button{
-background:#ffb6d9;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-}
-
-textarea,input{
-width:100%;
-padding:8px;
-margin-top:8px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-.butterfly{
-position:fixed;
-font-size:20px;
-animation: float 8s infinite linear;
-}
-
-@keyframes float{
-0%{transform:translateY(100vh);}
-100%{transform:translateY(-10vh);}
-}
-
-</style>
 </head>
 
 <body>
 
 <header>
+
 <h1>🦋 She is Chosen</h1>
-<p>Proverbs 31:25 — She is clothed in strength and dignity</p>
+
+<p class="verse">
+Proverbs 31:25 — She is clothed in strength and dignity
+</p>
+
 </header>
 
+
 <nav>
-<a href="#verse">Verse of the Day</a>
-<a href="#devotional">Devotionals</a>
-<a href="#music">Worship Music</a>
-<a href="#discussion">Discussion</a>
-<a href="#prayer">Prayer & Praise</a>
-<a href="#notes">Notes</a>
-<a href="#tips">Study Tips</a>
+
+<a href="#verse">Verse</a>
 <a href="#bible">Bible</a>
-<a href="#chat">Bible Questions</a>
+<a href="#devotionals">Devotionals</a>
+<a href="#music">Worship</a>
+<a href="#discussion">Discussion</a>
+<a href="#prayer">Prayer</a>
+<a href="#tips">Tips</a>
+<a href="#saved">Saved</a>
+
 </nav>
 
-<div class="section">
 
-<div id="verse" class="card">
+
+<section id="login" class="card">
+
+<h2>Choose Username</h2>
+
+<input id="usernameInput" placeholder="username">
+
+<button onclick="saveUsername()">Enter</button>
+
+</section>
+
+
+
+<section id="verse" class="card">
+
 <h2>Verse of the Day</h2>
-<p id="dailyVerse">Loading verse...</p>
+
+<p id="dailyVerse"></p>
+
 <button onclick="saveVerse()">Save Verse</button>
-</div>
 
-<div id="devotional" class="card">
-<h2>Devotionals</h2>
-<textarea id="devotionalInput" placeholder="Write a devotional..."></textarea>
-<button onclick="postDevotional()">Post Devotional</button>
-<div id="devotionalList"></div>
-</div>
+</section>
 
-<div id="music" class="card">
-<h2>Worship Music</h2>
-<input id="musicLink" placeholder="Paste YouTube link">
-<button onclick="addMusic()">Add Song</button>
-<div id="musicList"></div>
-</div>
 
-<div id="discussion" class="card">
-<h2>Discussion Thread</h2>
-<textarea id="discussionInput" placeholder="Share thoughts or questions..."></textarea>
-<button onclick="postDiscussion()">Post</button>
-<div id="discussionList"></div>
-</div>
 
-<div id="prayer" class="card">
-<h2>Prayer & Praise Requests</h2>
-<textarea id="prayerInput" placeholder="Share prayer or praise..."></textarea>
-<button onclick="postPrayer()">Post</button>
-<div id="prayerList"></div>
-</div>
+<section id="bible" class="card">
 
-<div id="notes" class="card">
-<h2>Personal Notes</h2>
-<textarea id="notesInput" placeholder="Write your study notes..."></textarea>
-<button onclick="saveNotes()">Save Notes</button>
-</div>
-
-<div id="tips" class="card">
-<h2>Study Tips</h2>
-<textarea id="tipsInput" placeholder="Share a study tip..."></textarea>
-<button onclick="postTip()">Post Tip</button>
-<div id="tipsList"></div>
-</div>
-
-<div id="bible" class="card">
 <h2>Search the Bible</h2>
-<input id="bibleSearch" placeholder="Example: John 3:16">
+
+<input id="searchInput" placeholder="John 3:16">
+
 <button onclick="searchBible()">Search</button>
+
 <p id="bibleResult"></p>
-</div>
 
-<div id="chat" class="card">
-<h2>Bible Question Tool</h2>
-<p>Ask anything about the Bible!</p>
-<ul>
-<li>What does this verse mean?</li>
-<li>Where can I find verses about faith?</li>
-<li>What does the Bible say about friendship?</li>
-</ul>
-<textarea id="chatInput" placeholder="Ask your question..."></textarea>
-<button onclick="sendQuestion()">Ask</button>
-<div id="chatList"></div>
-</div>
+</section>
 
-</div>
 
-<script>
 
-const bibleAPI = "https://bible-api.com/";
+<section id="devotionals" class="card">
 
-async function searchBible(){
-let ref=document.getElementById("bibleSearch").value;
-let res=await fetch(bibleAPI+ref);
-let data=await res.json();
-document.getElementById("bibleResult").innerText=data.text;
-}
+<h2>Devotionals</h2>
 
-function saveVerse(){
-localStorage.setItem("savedVerse",document.getElementById("dailyVerse").innerText);
-alert("Verse saved!");
-}
+<textarea id="devotionalText"></textarea>
 
-function postDevotional(){
-let text=document.getElementById("devotionalInput").value;
-let div=document.createElement("p");
-div.innerText=text;
-document.getElementById("devotionalList").appendChild(div);
-}
+<button onclick="postDevotional()">Post</button>
 
-function addMusic(){
-let link=document.getElementById("musicLink").value;
-let frame=document.createElement("iframe");
-frame.src=link.replace("watch?v=","embed/");
-frame.width="100%";
-frame.height="200";
-document.getElementById("musicList").appendChild(frame);
-}
+<div id="devotionalList"></div>
 
-function postDiscussion(){
-let text=document.getElementById("discussionInput").value;
-let div=document.createElement("p");
-div.innerText=text;
-document.getElementById("discussionList").appendChild(div);
-}
+</section>
 
-function postPrayer(){
-let text=document.getElementById("prayerInput").value;
-let div=document.createElement("p");
-div.innerText=text;
-document.getElementById("prayerList").appendChild(div);
-}
 
-function saveNotes(){
-localStorage.setItem("notes",document.getElementById("notesInput").value);
-alert("Notes saved!");
-}
 
-function postTip(){
-let text=document.getElementById("tipsInput").value;
-let div=document.createElement("p");
-div.innerText=text;
-document.getElementById("tipsList").appendChild(div);
-}
+<section id="music" class="card">
 
-function sendQuestion(){
-let text=document.getElementById("chatInput").value;
-let div=document.createElement("p");
-div.innerText="Question: "+text;
-document.getElementById("chatList").appendChild(div);
-}
+<h2>Worship Music</h2>
 
-</script>
+<input id="musicLink" placeholder="YouTube link">
+
+<button onclick="addMusic()">Add</button>
+
+<div id="musicList"></div>
+
+</section>
+
+
+
+<section id="discussion" class="card">
+
+<h2>Discussion Thread</h2>
+
+<textarea id="discussionText"></textarea>
+
+<button onclick="postDiscussion()">Post</button>
+
+<div id="discussionList"></div>
+
+</section>
+
+
+
+<section id="prayer" class="card">
+
+<h2>Prayer & Praise</h2>
+
+<textarea id="prayerText"></textarea>
+
+<button onclick="postPrayer()">Share</button>
+
+<div id="prayerList"></div>
+
+</section>
+
+
+
+<section id="tips" class="card">
+
+<h2>Study Tips From Others</h2>
+
+<textarea id="tipText"></textarea>
+
+<button onclick="postTip()">Share Tip</button>
+
+<div id="tipsList"></div>
+
+</section>
+
+
+
+<section id="saved" class="card">
+
+<h2>Saved Verses</h2>
+
+<div id="savedVerses"></div>
+
+</section>
+
+
+<script src="app.js"></script>
 
 </body>
 </html>
