@@ -1,223 +1,247 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>She Is Chosen</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+<title>She is Chosen</title>
 
 <style>
-body {
-  margin:0;
-  font-family:'Quicksand',sans-serif;
-  background:linear-gradient(to bottom,#fff0f6,#ffffff);
-  color:#5e4b56;
+
+body{
+font-family: "Georgia", serif;
+background:#fff7fb;
+margin:0;
+color:#5c4a57;
 }
 
-header {
-  text-align:center;
-  padding:40px 20px 10px;
+header{
+background:#ffd6ec;
+padding:25px;
+text-align:center;
 }
 
-h1 {
-  font-family:'Playfair Display',serif;
-  color:#d88fb3;
-  font-size:2rem;
+header h1{
+margin:0;
+font-size:32px;
 }
 
-.subtitle {
-  font-style:italic;
-  font-size:0.9rem;
+header p{
+font-style:italic;
 }
 
-nav {
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-  padding:10px;
+nav{
+display:flex;
+justify-content:center;
+gap:20px;
+background:#ffe8f3;
+padding:10px;
+flex-wrap:wrap;
 }
 
-nav button {
-  background:#ffd6e8;
-  border:none;
-  padding:8px 14px;
-  border-radius:20px;
-  font-size:0.8rem;
-  cursor:pointer;
+nav a{
+text-decoration:none;
+color:#5c4a57;
+font-weight:bold;
 }
 
-section { display:none; padding:20px; max-width:700px; margin:auto; }
-section.active { display:block; }
-
-.card {
-  background:white;
-  padding:20px;
-  border-radius:20px;
-  box-shadow:0 8px 20px rgba(255,182,210,0.2);
-  margin-bottom:20px;
+.section{
+padding:25px;
+max-width:800px;
+margin:auto;
 }
 
-textarea,input,select {
-  width:100%;
-  padding:8px;
-  border-radius:12px;
-  border:1px solid #ffd6e8;
-  margin-top:8px;
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 4px 8px rgba(0,0,0,0.05);
 }
 
-button.primary {
-  background:#ffb3d9;
-  border:none;
-  padding:8px 14px;
-  border-radius:15px;
-  margin-top:8px;
-  cursor:pointer;
+button{
+background:#ffb6d9;
+border:none;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
 }
 
-.butterflies span {
-  position:fixed;
-  font-size:20px;
-  animation:floatButterfly 18s linear infinite;
-  opacity:0.5;
+textarea,input{
+width:100%;
+padding:8px;
+margin-top:8px;
+border-radius:8px;
+border:1px solid #ddd;
 }
 
-.butterflies span:nth-child(1){left:15%;animation-delay:0s;}
-.butterflies span:nth-child(2){left:50%;animation-delay:6s;}
-.butterflies span:nth-child(3){left:80%;animation-delay:12s;}
-
-@keyframes floatButterfly {
-  0%{transform:translateY(100vh);}
-  100%{transform:translateY(-10vh);}
+.butterfly{
+position:fixed;
+font-size:20px;
+animation: float 8s infinite linear;
 }
+
+@keyframes float{
+0%{transform:translateY(100vh);}
+100%{transform:translateY(-10vh);}
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="butterflies">
-  <span>🦋</span>
-  <span>🦋</span>
-  <span>🦋</span>
-</div>
-
 <header>
-  <h1>She Is Chosen</h1>
-  <div class="subtitle">Proverbs 31:25 — She is clothed in strength and dignity.</div>
+<h1>🦋 She is Chosen</h1>
+<p>Proverbs 31:25 — She is clothed in strength and dignity</p>
 </header>
 
 <nav>
-  <button onclick="showSection('home')">Home</button>
-  <button onclick="showSection('bible')">Bible</button>
-  <button onclick="showSection('notes')">Notes</button>
-  <button onclick="showSection('prayer')">Prayer</button>
+<a href="#verse">Verse of the Day</a>
+<a href="#devotional">Devotionals</a>
+<a href="#music">Worship Music</a>
+<a href="#discussion">Discussion</a>
+<a href="#prayer">Prayer & Praise</a>
+<a href="#notes">Notes</a>
+<a href="#tips">Study Tips</a>
+<a href="#bible">Bible</a>
+<a href="#chat">Bible Questions</a>
 </nav>
 
-<section id="home" class="active">
-  <div class="card">
-    <h3>Verse of the Day</h3>
-    <p id="dailyVerse"></p>
-  </div>
+<div class="section">
 
-  <div class="card">
-    <h3>Your Profile</h3>
-    <input type="text" id="username" placeholder="Enter username">
-    <button class="primary" onclick="saveUsername()">Save</button>
-    <p id="welcome"></p>
-  </div>
-</section>
+<div id="verse" class="card">
+<h2>Verse of the Day</h2>
+<p id="dailyVerse">Loading verse...</p>
+<button onclick="saveVerse()">Save Verse</button>
+</div>
 
-<section id="bible">
-  <div class="card">
-    <h3>Search Bible</h3>
-    <input id="reference" placeholder="John 3:16">
-    <button class="primary" onclick="getVerse()">Search</button>
-    <p id="verseResult"></p>
-    <button class="primary" onclick="saveVerse()">Save Verse</button>
-  </div>
-</section>
+<div id="devotional" class="card">
+<h2>Devotionals</h2>
+<textarea id="devotionalInput" placeholder="Write a devotional..."></textarea>
+<button onclick="postDevotional()">Post Devotional</button>
+<div id="devotionalList"></div>
+</div>
 
-<section id="notes">
-  <div class="card">
-    <h3>Study Notes</h3>
-    <textarea id="notesText"></textarea>
-    <button class="primary" onclick="saveNotes()">Save to Cloud</button>
-  </div>
-</section>
+<div id="music" class="card">
+<h2>Worship Music</h2>
+<input id="musicLink" placeholder="Paste YouTube link">
+<button onclick="addMusic()">Add Song</button>
+<div id="musicList"></div>
+</div>
 
-<section id="prayer">
-  <div class="card">
-    <h3>Prayer Requests</h3>
-    <textarea id="prayerText"></textarea>
-    <button class="primary" onclick="savePrayer()">Save to Cloud</button>
-  </div>
-</section>
+<div id="discussion" class="card">
+<h2>Discussion Thread</h2>
+<textarea id="discussionInput" placeholder="Share thoughts or questions..."></textarea>
+<button onclick="postDiscussion()">Post</button>
+<div id="discussionList"></div>
+</div>
 
-<script type="module">
+<div id="prayer" class="card">
+<h2>Prayer & Praise Requests</h2>
+<textarea id="prayerInput" placeholder="Share prayer or praise..."></textarea>
+<button onclick="postPrayer()">Post</button>
+<div id="prayerList"></div>
+</div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<div id="notes" class="card">
+<h2>Personal Notes</h2>
+<textarea id="notesInput" placeholder="Write your study notes..."></textarea>
+<button onclick="saveNotes()">Save Notes</button>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDKF0gf1cR1C4qto9iNnoKRKE7T4WO-KhI",
-  authDomain: "she-is-chosen.firebaseapp.com",
-  projectId: "she-is-chosen",
-  storageBucket: "she-is-chosen.firebasestorage.app",
-  messagingSenderId: "836410295991",
-  appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
-};
+<div id="tips" class="card">
+<h2>Study Tips</h2>
+<textarea id="tipsInput" placeholder="Share a study tip..."></textarea>
+<button onclick="postTip()">Post Tip</button>
+<div id="tipsList"></div>
+</div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<div id="bible" class="card">
+<h2>Search the Bible</h2>
+<input id="bibleSearch" placeholder="Example: John 3:16">
+<button onclick="searchBible()">Search</button>
+<p id="bibleResult"></p>
+</div>
 
-window.showSection = function(id){
-  document.querySelectorAll("section").forEach(sec=>sec.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+<div id="chat" class="card">
+<h2>Bible Question Tool</h2>
+<p>Ask anything about the Bible!</p>
+<ul>
+<li>What does this verse mean?</li>
+<li>Where can I find verses about faith?</li>
+<li>What does the Bible say about friendship?</li>
+</ul>
+<textarea id="chatInput" placeholder="Ask your question..."></textarea>
+<button onclick="sendQuestion()">Ask</button>
+<div id="chatList"></div>
+</div>
+
+</div>
+
+<script>
+
+const bibleAPI = "https://bible-api.com/";
+
+async function searchBible(){
+let ref=document.getElementById("bibleSearch").value;
+let res=await fetch(bibleAPI+ref);
+let data=await res.json();
+document.getElementById("bibleResult").innerText=data.text;
 }
 
-window.getVerse = async function(){
-  let ref=document.getElementById("reference").value;
-  let res=await fetch(`https://bible-api.com/${ref}`);
-  let data=await res.json();
-  document.getElementById("verseResult").innerText=data.text;
+function saveVerse(){
+localStorage.setItem("savedVerse",document.getElementById("dailyVerse").innerText);
+alert("Verse saved!");
 }
 
-window.saveUsername = async function(){
-  let user=document.getElementById("username").value;
-  await setDoc(doc(db,"users",user),{username:user});
-  document.getElementById("welcome").innerText="Welcome, "+user+" 💕";
+function postDevotional(){
+let text=document.getElementById("devotionalInput").value;
+let div=document.createElement("p");
+div.innerText=text;
+document.getElementById("devotionalList").appendChild(div);
 }
 
-window.saveNotes = async function(){
-  let user=document.getElementById("username").value;
-  let text=document.getElementById("notesText").value;
-  await setDoc(doc(db,"notes",user),{content:text});
-  alert("Saved to cloud ☁️");
+function addMusic(){
+let link=document.getElementById("musicLink").value;
+let frame=document.createElement("iframe");
+frame.src=link.replace("watch?v=","embed/");
+frame.width="100%";
+frame.height="200";
+document.getElementById("musicList").appendChild(frame);
 }
 
-window.savePrayer = async function(){
-  let user=document.getElementById("username").value;
-  let text=document.getElementById("prayerText").value;
-  await setDoc(doc(db,"prayers",user),{content:text});
-  alert("Saved to cloud ☁️");
+function postDiscussion(){
+let text=document.getElementById("discussionInput").value;
+let div=document.createElement("p");
+div.innerText=text;
+document.getElementById("discussionList").appendChild(div);
 }
 
-window.saveVerse = async function(){
-  let user=document.getElementById("username").value;
-  let verse=document.getElementById("verseResult").innerText;
-  await setDoc(doc(db,"savedVerses",user),{verse:verse});
-  alert("Verse saved ☁️");
+function postPrayer(){
+let text=document.getElementById("prayerInput").value;
+let div=document.createElement("p");
+div.innerText=text;
+document.getElementById("prayerList").appendChild(div);
 }
 
-async function getDailyVerse(){
-  let verses=["Jeremiah 29:11","Psalm 46:5","Isaiah 41:10","Romans 8:28"];
-  let random=verses[Math.floor(Math.random()*verses.length)];
-  let res=await fetch(`https://bible-api.com/${random}`);
-  let data=await res.json();
-  document.getElementById("dailyVerse").innerText=data.text;
+function saveNotes(){
+localStorage.setItem("notes",document.getElementById("notesInput").value);
+alert("Notes saved!");
 }
 
-getDailyVerse();
+function postTip(){
+let text=document.getElementById("tipsInput").value;
+let div=document.createElement("p");
+div.innerText=text;
+document.getElementById("tipsList").appendChild(div);
+}
+
+function sendQuestion(){
+let text=document.getElementById("chatInput").value;
+let div=document.createElement("p");
+div.innerText="Question: "+text;
+document.getElementById("chatList").appendChild(div);
+}
 
 </script>
 
