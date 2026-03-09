@@ -1,20 +1,21 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Bible Study</title>
+<title>Faith Bible Study</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header>
-<h1>Bible Study</h1>
+<h1>Faith Bible Study</h1>
+<p class="verse">"A friend loves at all times." – Proverbs 17:17</p>
 </header>
 
-<!-- LOGIN -->
 <div id="loginBox">
-<h3>Login (Optional)</h3>
+<h3>Optional Login</h3>
 <input id="firstName" placeholder="First Name">
 <input id="username" placeholder="Username">
 <input id="password" placeholder="Password (name + 3 numbers)">
@@ -22,47 +23,55 @@
 <p id="loginStatus"></p>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
 <button onclick="openTab('bible')">Bible</button>
+<button onclick="openTab('search')">Search</button>
 <button onclick="openTab('notes')">Notes</button>
-<button onclick="openTab('highlighted')">Highlights</button>
+<button onclick="openTab('highlights')">Highlights</button>
+<button onclick="openTab('bookmarks')">Bookmarks</button>
 </div>
 
-<!-- BIBLE TAB -->
 <div id="bible" class="tab">
-
 <h2>Bible Reader</h2>
-
+<div class="highlightTools">
+<button onclick="setColor('yellow')">Yellow</button>
+<button onclick="setColor('pink')">Pink</button>
+<button onclick="setColor('purple')">Purple</button>
+<button onclick="bookmarkVerse()">Bookmark</button>
+</div>
 <div id="bibleText"></div>
-
-<button onclick="saveHighlight()">Save Highlight</button>
-
 </div>
 
-<!-- NOTES TAB -->
+<div id="search" class="tab">
+<h2>Search Bible</h2>
+<input id="searchBox" placeholder="Search words...">
+<button onclick="searchBible()">Search</button>
+<div id="searchResults"></div>
+</div>
+
 <div id="notes" class="tab">
-
 <h2>Notes</h2>
-
-<textarea id="noteText" placeholder="Write notes here..."></textarea>
+<textarea id="noteText" placeholder="Write notes..."></textarea>
 <br>
 <button onclick="saveNote()">Save Note</button>
-
 <div id="savedNotes"></div>
-
 </div>
 
-<!-- HIGHLIGHT TAB -->
-<div id="highlighted" class="tab">
-
+<div id="highlights" class="tab">
 <h2>Saved Highlights</h2>
-
 <div id="savedHighlights"></div>
-
 </div>
+
+<div id="bookmarks" class="tab">
+<h2>Bookmarked Verses</h2>
+<div id="savedBookmarks"></div>
+</div>
+
+<footer>
+<p id="dailyVerse"></p>
+</footer>
 
 <script src="script.js"></script>
-
 </body>
 </html>
+```
