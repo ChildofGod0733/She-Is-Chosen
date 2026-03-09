@@ -1,72 +1,107 @@
 ```css
 body{
-font-family: 'Playfair Display', 'Poppins', serif;
-background:#ffe4ef;
+
+font-family:'Poppins',sans-serif;
+
+background:#ffe4f1;
+
 margin:0;
+
 }
 
 header{
-background:#ff9ecf;
+
+background:#ff9ed1;
+
+padding:30px;
+
 text-align:center;
-padding:25px;
-color:#5c0030;
+
+font-family:'Playfair Display',serif;
+
+color:#5a0030;
+
 }
 
 .keyverse{
+
 font-style:italic;
-margin-top:8px;
+
 }
 
 .tabs{
+
 text-align:center;
+
 padding:10px;
+
 }
 
 .tabs button{
-background:#ff7fbd;
+
+background:#ff7fc2;
+
 border:none;
-padding:10px 20px;
-margin:6px;
+
+padding:10px 16px;
+
+margin:5px;
+
 border-radius:12px;
+
 color:white;
-font-weight:600;
+
 cursor:pointer;
+
 }
 
 .tab{
+
 display:none;
+
 padding:20px;
+
 }
 
 #bibleText{
+
 background:white;
-padding:20px;
-border-radius:12px;
+
 height:420px;
+
 overflow-y:scroll;
+
+padding:20px;
+
+border-radius:10px;
+
 line-height:1.8;
-box-shadow:0 0 10px rgba(0,0,0,0.05);
+
 }
 
 .verse{
+
 padding:6px;
-cursor:pointer;
+
+margin-bottom:5px;
+
 border-radius:6px;
+
 }
 
-.verse:hover{
-background:#fff0f7;
-}
-
-.highlight{
-background:#ffd1ea;
-}
+.highlight-yellow{background:yellow}
+.highlight-pink{background:pink}
+.highlight-purple{background:plum}
 
 textarea{
+
 width:90%;
+
 height:120px;
-border-radius:10px;
+
+border-radius:8px;
+
 padding:10px;
-border:1px solid #ddd;
+
 }
 ```
