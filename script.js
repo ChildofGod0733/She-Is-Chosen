@@ -20,10 +20,15 @@ verse.style.background = "#fff3a6"
 
 function favoriteVerse(){
 
-alert("Verse added to favorites ⭐")
+let verse = document.getElementById("verseText").innerText
+
+let saved = document.createElement("p")
+
+saved.innerText = verse
+
+document.getElementById("favoriteList").appendChild(saved)
 
 }
-
 
 function saveJournal(){
 
