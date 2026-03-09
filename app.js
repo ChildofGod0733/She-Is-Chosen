@@ -1,171 +1,166 @@
-const bibleAPI = "https://bible-api.com/";
+function showTab(id){
 
-let username = localStorage.getItem("username");
-
-function saveUsername(){
-
-username = document.getElementById("usernameInput").value;
-
-localStorage.setItem("username",username);
-
-alert("Welcome "+username);
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"))
+document.getElementById(id).classList.add("active")
 
 }
 
+function login(){
 
-async function searchBible(){
+let name=document.getElementById("firstName").value
+let user=document.getElementById("username").value
+let pass=document.getElementById("password").value
 
-let ref = document.getElementById("searchInput").value;
+if(pass.length<4){
 
-let res = await fetch(bibleAPI + ref);
-
-let data = await res.json();
-
-document.getElementById("bibleResult").innerText = data.text;
-
-}
-
-
-function saveVerse(){
-
-let verse = document.getElementById("dailyVerse").innerText;
-
-let saved = JSON.parse(localStorage.getItem("savedVerses")) || [];
-
-saved.push(verse);
-
-localStorage.setItem("savedVerses",JSON.stringify(saved));
-
-showSaved();
+document.getElementById("loginMsg").innerText="Password must be name + 3 numbers"
+return
 
 }
 
+localStorage.setItem("user",user)
+localStorage.setItem("name",name)
+
+document.getElementById("loginMsg").innerText="Logged in!"
+
+}
+
+async function loadChapter(){
+
+let book=document.getElementById("book").value
+let chapter=document.getElementById("chapter").value
+
+let res=await fetch(`https://bible-api.com/${book}%20${chapter}`)
+let data=await res.json()
+
+let html=""
+
+data.verses.forEach(v=>{
+
+html+=`<p onclick="highlight(this)">${v.verse}. ${v.text}</p>`
+
+})
+
+document.getElementById("bibleText").innerHTML=html
+
+}
+
+function highlight(el){
+
+el.classList.toggle("highlight")
+
+let saved=JSON.parse(localStorage.getItem("savedVerses"))||[]
+
+saved.push(el.innerText)
+
+localStorage.setItem("savedVerses",JSON.stringify(saved))
+
+showSaved()
+
+}
 
 function showSaved(){
 
-let saved = JSON.parse(localStorage.getItem("savedVerses")) || [];
+let saved=JSON.parse(localStorage.getItem("savedVerses"))||[]
 
-let container = document.getElementById("savedVerses");
-
-container.innerHTML="";
+let html=""
 
 saved.forEach(v=>{
 
-let p=document.createElement("p");
+html+=`<p>${v}</p>`
 
-p.innerText=v;
+})
 
-container.appendChild(p);
-
-});
+document.getElementById("savedVerses").innerHTML=html
 
 }
 
-showSaved();
+showSaved()
 
+function saveNotes(){
 
-function postDevotional(){
+if(!localStorage.getItem("user")){
 
-let text=document.getElementById("devotionalText").value;
-
-let div=document.createElement("p");
-
-div.innerText=username+": "+text;
-
-document.getElementById("devotionalList").appendChild(div);
+alert("Login first to save notes")
+return
 
 }
 
+localStorage.setItem("notes",document.getElementById("notes").value)
 
-function addMusic(){
-
-let link=document.getElementById("musicLink").value;
-
-let iframe=document.createElement("iframe");
-
-iframe.src=link.replace("watch?v=","embed/");
-
-iframe.width="100%";
-
-iframe.height="200";
-
-document.getElementById("musicList").appendChild(iframe);
+alert("Notes saved")
 
 }
 
+function postDev(){
+
+let text=document.getElementById("devText").value
+
+let p=document.createElement("p")
+p.innerText=text
+
+document.getElementById("devList").appendChild(p)
+
+}
 
 function postDiscussion(){
 
-let text=document.getElementById("discussionText").value;
+let text=document.getElementById("discText").value
 
-let div=document.createElement("p");
+let p=document.createElement("p")
+p.innerText=text
 
-div.innerText=username+": "+text;
-
-document.getElementById("discussionList").appendChild(div);
-
-}
-
-
-function postPrayer(){
-
-let text=document.getElementById("prayerText").value;
-
-let div=document.createElement("p");
-
-div.innerText=username+": "+text;
-
-document.getElementById("prayerList").appendChild(div);
+document.getElementById("discList").appendChild(p)
 
 }
 
+function addSong(){
+
+let link=document.getElementById("songLink").value
+
+let iframe=document.createElement("iframe")
+
+iframe.src=link.replace("watch?v=","embed/")
+iframe.width="100%"
+iframe.height="200"
+
+document.getElementById("musicList").appendChild(iframe)
+
+}
 
 function postTip(){
 
-let text=document.getElementById("tipText").value;
+let text=document.getElementById("tipText").value
 
-let div=document.createElement("p");
+let p=document.createElement("p")
+p.innerText=text
 
-div.innerText=username+": "+text;
-
-document.getElementById("tipsList").appendChild(div);
+document.getElementById("tipList").appendChild(p)
 
 }
 
+function postPrayer(){
 
-/* butterflies */
+let text=document.getElementById("prayText").value
 
-function butterflies(){
+let p=document.createElement("p")
+p.innerText=text
+
+document.getElementById("prayList").appendChild(p)
+
+}
 
 for(let i=0;i<8;i++){
 
-let b=document.createElement("div");
+let b=document.createElement("div")
 
-b.className="butterfly";
+b.className="butterfly"
+b.innerText="🦋"
 
-b.innerText="🦋";
+b.style.left=Math.random()*100+"vw"
 
-b.style.left=Math.random()*100+"vw";
+b.style.animationDuration=6+Math.random()*8+"s"
 
-b.style.animationDuration=8+Math.random()*10+"s";
-
-document.body.appendChild(b);
-
-}
+document.body.appendChild(b)
 
 }
-
-butterflies();
-
-
-/* daily verse */
-
-fetch("https://bible-api.com/proverbs 31:25")
-
-.then(res=>res.json())
-
-.then(data=>{
-
-document.getElementById("dailyVerse").innerText=data.text
-
-})
