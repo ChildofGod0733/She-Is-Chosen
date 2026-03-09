@@ -1,33 +1,36 @@
 ```css
 body{
-font-family:Georgia;
-background:#faf5ff;
+font-family:'Poppins',sans-serif;
+background:#ffe4ef;
 margin:0;
 }
 
 header{
+background:#ff9ecf;
 text-align:center;
-background:#e9d5ff;
-padding:20px;
+padding:25px;
+color:#5c0030;
 }
 
-.verse{
+.keyverse{
 font-style:italic;
+margin-top:8px;
 }
 
 .tabs{
 text-align:center;
-margin:10px;
+padding:10px;
 }
 
 .tabs button{
-padding:10px 20px;
-margin:5px;
+background:#ff7fbd;
 border:none;
-background:#c084fc;
+padding:10px 20px;
+margin:6px;
+border-radius:12px;
 color:white;
+font-weight:600;
 cursor:pointer;
-border-radius:8px;
 }
 
 .tab{
@@ -36,37 +39,34 @@ padding:20px;
 }
 
 #bibleText{
+background:white;
+padding:20px;
+border-radius:12px;
 height:420px;
 overflow-y:scroll;
-background:white;
-padding:15px;
-border:1px solid #ccc;
-line-height:1.7;
+line-height:1.8;
+box-shadow:0 0 10px rgba(0,0,0,0.05);
 }
 
-.highlight-yellow{background:yellow;}
-.highlight-pink{background:pink;}
-.highlight-purple{background:plum;}
+.verse{
+padding:6px;
+cursor:pointer;
+border-radius:6px;
+}
+
+.verse:hover{
+background:#fff0f7;
+}
+
+.highlight{
+background:#ffd1ea;
+}
 
 textarea{
 width:90%;
 height:120px;
-}
-
-#loginBox{
-padding:15px;
-background:#f3e8ff;
-text-align:center;
-}
-
-.highlightTools button{
-margin:5px;
-padding:8px;
-}
-
-footer{
-text-align:center;
-padding:15px;
-font-style:italic;
+border-radius:10px;
+padding:10px;
+border:1px solid #ddd;
 }
 ```
