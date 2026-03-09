@@ -1,69 +1,178 @@
 ```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>She is Chosen</title>
+
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
 
 <header>
 <h1>She is Chosen</h1>
-<p class="keyverse">"She is clothed with strength and dignity, and she laughs without fear of the future." – Proverbs 31:25</p>
+
+<p class="keyverse">
+“She is clothed with strength and dignity, and she laughs without fear of the future.” – Proverbs 31:25
+</p>
+
+<p id="dailyVerse"></p>
+
 </header>
 
+
 <div class="tabs">
+
 <button onclick="openTab('bible')">Bible</button>
+<button onclick="openTab('search')">Search</button>
 <button onclick="openTab('notes')">Notes</button>
 <button onclick="openTab('highlights')">Highlights</button>
+<button onclick="openTab('favorites')">Favorites</button>
+<button onclick="openTab('prayer')">Prayer</button>
 <button onclick="openTab('discussion')">Discussion</button>
-<button onclick="openTab('music')">Worship Music</button>
+<button onclick="openTab('music')">Music</button>
+
 </div>
 
+
+<!-- BIBLE -->
+
 <div id="bible" class="tab">
+
 <h2>Bible Reader</h2>
 
 <select id="bookSelect"></select>
+
 <select id="chapterSelect"></select>
+
 <button onclick="loadChapter()">Load</button>
+
+
+<div class="highlightTools">
+
+<button onclick="setColor('yellow')">Yellow</button>
+<button onclick="setColor('pink')">Pink</button>
+<button onclick="setColor('purple')">Purple</button>
+
+</div>
+
 
 <div id="bibleText"></div>
 
 </div>
 
-<div id="notes" class="tab">
-<h2>Notes</h2>
-<textarea id="noteInput" placeholder="Write your Bible study notes..."></textarea>
-<br>
-<button onclick="saveNote()">Save Note</button>
-<div id="notesList"></div>
+
+<!-- SEARCH -->
+
+<div id="search" class="tab">
+
+<h2>Search Bible</h2>
+
+<input id="searchBox" placeholder="Search the Bible">
+
+<button onclick="searchBible()">Search</button>
+
+<div id="searchResults"></div>
+
 </div>
+
+
+<!-- NOTES -->
+
+<div id="notes" class="tab">
+
+<h2>Bible Notes</h2>
+
+<textarea id="noteInput" placeholder="Write your notes..."></textarea>
+
+<button onclick="saveNote()">Save Note</button>
+
+<div id="notesList"></div>
+
+</div>
+
+
+<!-- HIGHLIGHTS -->
 
 <div id="highlights" class="tab">
-<h2>Saved Verses</h2>
+
+<h2>Highlighted Verses</h2>
+
 <div id="highlightList"></div>
+
 </div>
+
+
+<!-- FAVORITES -->
+
+<div id="favorites" class="tab">
+
+<h2>Favorite Verses</h2>
+
+<div id="favoriteList"></div>
+
+</div>
+
+
+<!-- PRAYER -->
+
+<div id="prayer" class="tab">
+
+<h2>Prayer Journal</h2>
+
+<textarea id="prayerInput" placeholder="Write your prayers..."></textarea>
+
+<button onclick="savePrayer()">Save Prayer</button>
+
+<div id="prayerList"></div>
+
+</div>
+
+
+<!-- DISCUSSION -->
 
 <div id="discussion" class="tab">
-<h2>Bible Study Discussion</h2>
-<textarea placeholder="Share what God is teaching you..."></textarea>
+
+<h2>Bible Discussion</h2>
+
+<textarea id="discussionInput" placeholder="Share thoughts from your Bible study..."></textarea>
+
+<button onclick="postDiscussion()">Post</button>
+
+<div id="discussionList"></div>
+
 </div>
+
+
+<!-- MUSIC -->
 
 <div id="music" class="tab">
+
 <h2>Worship Music</h2>
-<ul>
-<li>Gratitude – Brandon Lake</li>
-<li>Goodness of God – Bethel Music</li>
-<li>Oceans – Hillsong United</li>
-<li>Reckless Love – Cory Asbury</li>
-<li>Jireh – Elevation Worship</li>
-</ul>
+
+<iframe
+style="border-radius:12px"
+src="https://open.spotify.com/embed/playlist/37i9dQZF1DWY4xHQp97fN6"
+width="100%"
+height="380"
+frameBorder="0"
+loading="lazy"></iframe>
+
 </div>
 
+
 <script src="script.js"></script>
+
 </body>
+
 </html>
 ```
+
+---
