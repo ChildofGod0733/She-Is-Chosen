@@ -3,73 +3,65 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Faith Bible Study</title>
+<title>She is Chosen</title>
 <link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
 <header>
-<h1>Faith Bible Study</h1>
-<p class="verse">"A friend loves at all times." – Proverbs 17:17</p>
+<h1>She is Chosen</h1>
+<p class="keyverse">"She is clothed with strength and dignity, and she laughs without fear of the future." – Proverbs 31:25</p>
 </header>
-
-<div id="loginBox">
-<h3>Optional Login</h3>
-<input id="firstName" placeholder="First Name">
-<input id="username" placeholder="Username">
-<input id="password" placeholder="Password (name + 3 numbers)">
-<button onclick="login()">Login</button>
-<p id="loginStatus"></p>
-</div>
 
 <div class="tabs">
 <button onclick="openTab('bible')">Bible</button>
-<button onclick="openTab('search')">Search</button>
 <button onclick="openTab('notes')">Notes</button>
 <button onclick="openTab('highlights')">Highlights</button>
-<button onclick="openTab('bookmarks')">Bookmarks</button>
+<button onclick="openTab('discussion')">Discussion</button>
+<button onclick="openTab('music')">Worship Music</button>
 </div>
 
 <div id="bible" class="tab">
 <h2>Bible Reader</h2>
-<div class="highlightTools">
-<button onclick="setColor('yellow')">Yellow</button>
-<button onclick="setColor('pink')">Pink</button>
-<button onclick="setColor('purple')">Purple</button>
-<button onclick="bookmarkVerse()">Bookmark</button>
-</div>
-<div id="bibleText"></div>
-</div>
 
-<div id="search" class="tab">
-<h2>Search Bible</h2>
-<input id="searchBox" placeholder="Search words...">
-<button onclick="searchBible()">Search</button>
-<div id="searchResults"></div>
+<select id="bookSelect"></select>
+<select id="chapterSelect"></select>
+<button onclick="loadChapter()">Load</button>
+
+<div id="bibleText"></div>
+
 </div>
 
 <div id="notes" class="tab">
 <h2>Notes</h2>
-<textarea id="noteText" placeholder="Write notes..."></textarea>
+<textarea id="noteInput" placeholder="Write your Bible study notes..."></textarea>
 <br>
 <button onclick="saveNote()">Save Note</button>
-<div id="savedNotes"></div>
+<div id="notesList"></div>
 </div>
 
 <div id="highlights" class="tab">
-<h2>Saved Highlights</h2>
-<div id="savedHighlights"></div>
+<h2>Saved Verses</h2>
+<div id="highlightList"></div>
 </div>
 
-<div id="bookmarks" class="tab">
-<h2>Bookmarked Verses</h2>
-<div id="savedBookmarks"></div>
+<div id="discussion" class="tab">
+<h2>Bible Study Discussion</h2>
+<textarea placeholder="Share what God is teaching you..."></textarea>
 </div>
 
-<footer>
-<p id="dailyVerse"></p>
-</footer>
+<div id="music" class="tab">
+<h2>Worship Music</h2>
+<ul>
+<li>Gratitude – Brandon Lake</li>
+<li>Goodness of God – Bethel Music</li>
+<li>Oceans – Hillsong United</li>
+<li>Reckless Love – Cory Asbury</li>
+<li>Jireh – Elevation Worship</li>
+</ul>
+</div>
 
 <script src="script.js"></script>
 </body>
