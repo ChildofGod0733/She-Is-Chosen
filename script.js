@@ -1,108 +1,126 @@
 ```javascript
-let loggedIn=false
-let highlightColor="yellow"
+let bibleData={}
 
 function openTab(name){
 
 let tabs=document.getElementsByClassName("tab")
 
-for(let i=0;i<tabs.length;i++){
-
- tabs[i].style.display="none"
-
+for(let t of tabs){
+ t.style.display="none"
 }
 
 document.getElementById(name).style.display="block"
-
 }
 
 openTab("bible")
 
-function login(){
+// LOAD FULL BIBLE
 
-let name=document.getElementById("firstName").value
-let user=document.getElementById("username").value
-let pass=document.getElementById("password").value
+fetch("https://cdn.jsdelivr.net/gh/wldeh/bible-api/bibles/en-kjv/books.json")
+.then(res=>res.json())
+.then(data=>{
 
-if(name && user && pass){
+bibleData=data
 
-loggedIn=true
+let bookSelect=document.getElementById("bookSelect")
 
-document.getElementById("loginStatus").innerText="Logged in!"
+for(let book of data){
+
+let option=document.createElement("option")
+
+option.value=book.id
+option.textContent=book.name
+
+bookSelect.appendChild(option)
 
 }
 
-}
+loadChapters()
 
-function setColor(color){
-highlightColor=color
-}
-
-const bibleText=`
-Genesis 1:1 In the beginning God created the heavens and the earth.
-
-Psalm 23:1 The Lord is my shepherd; I shall not want.
-
-Proverbs 17:17 A friend loves at all times.
-
-Proverbs 18:24 A friend sticks closer than a brother.
-
-John 3:16 For God so loved the world that he gave his only Son.
-
-Romans 8:28 God works all things for the good of those who love Him.
-`
-
-document.getElementById("bibleText").innerText=bibleText
-
-let selected=""
-
-document.getElementById("bibleText").addEventListener("mouseup",function(){
-selected=window.getSelection().toString()
 })
 
-function bookmarkVerse(){
+function loadChapters(){
 
-if(selected=="")return
+let chapterSelect=document.getElementById("chapterSelect")
 
-let saved=localStorage.getItem("bookmarks")||""
+chapterSelect.innerHTML=""
 
-saved+=selected+"<br><br>"
+for(let i=1;i<=50;i++){
 
-localStorage.setItem("bookmarks",saved)
+let opt=document.createElement("option")
+opt.value=i
+opt.textContent="Chapter "+i
 
-showBookmarks()
-
-}
-
-function showBookmarks(){
-
-let saved=localStorage.getItem("bookmarks")
-
-if(saved)
-
- document.getElementById("savedBookmarks").innerHTML=saved
+chapterSelect.appendChild(opt)
 
 }
 
-showBookmarks()
+}
+
+function loadChapter(){
+
+let book=document.getElementById("bookSelect").value
+let chapter=document.getElementById("chapterSelect").value
+
+fetch(`https://bible-api.com/${book}+${chapter}`)
+.then(res=>res.json())
+.then(data=>{
+
+let html=""
+
+for(let v of data.verses){
+
+html+=`<div class="verse" onclick="highlightVerse(this,'${v.text}')">${v.verse}. ${v.text}</div>`
+
+}
+
+document.getElementById("bibleText").innerHTML=html
+
+})
+
+}
+
+function highlightVerse(el,text){
+
+el.classList.toggle("highlight")
+
+let saved=JSON.parse(localStorage.getItem("highlights")||"[]")
+
+if(!saved.includes(text)){
+saved.push(text)
+}
+
+localStorage.setItem("highlights",JSON.stringify(saved))
+
+showHighlights()
+
+}
+
+function showHighlights(){
+
+let saved=JSON.parse(localStorage.getItem("highlights")||"[]")
+
+let html=""
+
+for(let v of saved){
+html+=v+"<br><br>"
+}
+
+document.getElementById("highlightList").innerHTML=html
+
+}
+
+showHighlights()
 
 function saveNote(){
 
-if(!loggedIn){
+let note=document.getElementById("noteInput").value
 
-alert("Login to save notes")
+let saved=JSON.parse(localStorage.getItem("notes")||"[]")
 
-return
+saved.push(note)
 
-}
-
-let note=document.getElementById("noteText").value
-
-let saved=localStorage.getItem("notes")||""
-
-saved+=note+"<br><br>"
-
-localStorage.setItem("notes",saved)
+localStorage.setItem("notes",JSON.stringify(saved))
 
 showNotes()
 
@@ -110,47 +128,17 @@ showNotes()
 
 function showNotes(){
 
-let saved=localStorage.getItem("notes")
+let saved=JSON.parse(localStorage.getItem("notes")||"[]")
 
-if(saved)
+let html=""
 
- document.getElementById("savedNotes").innerHTML=saved
+for(let n of saved){
+html+=n+"<br><br>"
+}
+
+document.getElementById("notesList").innerHTML=html
 
 }
 
 showNotes()
-
-function searchBible(){
-
-let q=document.getElementById("searchBox").value.toLowerCase()
-
-let verses=bibleText.split("\n")
-
-let results=""
-
-for(let v of verses){
-
- if(v.toLowerCase().includes(q)){
-
-  results+=v+"<br><br>"
-
- }
-
-}
-
-document.getElementById("searchResults").innerHTML=results
-
-}
-
-const daily=[
-"Psalm 46:1 God is our refuge and strength.",
-"Proverbs 3:5 Trust in the Lord with all your heart.",
-"Joshua 1:9 Be strong and courageous.",
-"Romans 8:28 God works all things for good."
-]
-
-let verse=daily[Math.floor(Math.random()*daily.length)]
-
-document.getElementById("dailyVerse").innerText="Verse of the Day: "+verse
 ```
-
