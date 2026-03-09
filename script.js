@@ -69,3 +69,26 @@ document.getElementById("spotifyPlayer").innerHTML =
 }
 
 }
+const verses = [
+
+"Trust in the Lord with all your heart – Proverbs 3:5",
+
+"I can do all things through Christ – Philippians 4:13",
+
+"Be still and know that I am God – Psalm 46:10",
+
+"The Lord is my shepherd – Psalm 23:1",
+
+"Let all that you do be done in love – 1 Corinthians 16:14"
+
+]
+
+function loadVerse(){
+
+let random = Math.floor(Math.random()*verses.length)
+
+document.getElementById("dailyVerse").innerText = verses[random]
+
+}
+
+loadVerse()
