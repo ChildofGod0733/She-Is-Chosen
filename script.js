@@ -1,21 +1,23 @@
-let loggedIn = false
+```javascript
+let loggedIn=false
+let highlightColor="yellow"
 
-// TAB SWITCHING
-function openTab(tabName){
+function openTab(name){
 
-let tabs = document.getElementsByClassName("tab")
+let tabs=document.getElementsByClassName("tab")
 
 for(let i=0;i<tabs.length;i++){
-tabs[i].style.display="none"
+
+ tabs[i].style.display="none"
+
 }
 
-document.getElementById(tabName).style.display="block"
+document.getElementById(name).style.display="block"
 
 }
 
 openTab("bible")
 
-// LOGIN
 function login(){
 
 let name=document.getElementById("firstName").value
@@ -25,21 +27,19 @@ let pass=document.getElementById("password").value
 if(name && user && pass){
 
 loggedIn=true
-document.getElementById("loginStatus").innerText="Logged in! Notes will save."
 
-}else{
-
-document.getElementById("loginStatus").innerText="Fill all fields."
+document.getElementById("loginStatus").innerText="Logged in!"
 
 }
 
 }
 
-// BIBLE TEXT
-const bible = `
-Genesis 1:1 In the beginning God created the heaven and the earth.
+function setColor(color){
+highlightColor=color
+}
 
-John 3:16 For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.
+const bibleText=`
+Genesis 1:1 In the beginning God created the heavens and the earth.
 
 Psalm 23:1 The Lord is my shepherd; I shall not want.
 
@@ -47,86 +47,110 @@ Proverbs 17:17 A friend loves at all times.
 
 Proverbs 18:24 A friend sticks closer than a brother.
 
-Romans 8:28 And we know that in all things God works for the good of those who love him.
+John 3:16 For God so loved the world that he gave his only Son.
+
+Romans 8:28 God works all things for the good of those who love Him.
 `
 
-document.getElementById("bibleText").innerText=bible
+document.getElementById("bibleText").innerText=bibleText
 
-// HIGHLIGHTING
-let selectedText=""
+let selected=""
 
 document.getElementById("bibleText").addEventListener("mouseup",function(){
-
-selectedText=window.getSelection().toString()
-
+selected=window.getSelection().toString()
 })
 
-// SAVE HIGHLIGHT
-function saveHighlight(){
+function bookmarkVerse(){
 
-if(selectedText=="") return
+if(selected=="")return
 
-let saved=localStorage.getItem("highlights")
+let saved=localStorage.getItem("bookmarks")||""
 
-if(!saved) saved=""
+saved+=selected+"<br><br>"
 
-saved+=selectedText+"<br><br>"
+localStorage.setItem("bookmarks",saved)
 
-localStorage.setItem("highlights",saved)
-
-displayHighlights()
+showBookmarks()
 
 }
 
-// DISPLAY HIGHLIGHTS
-function displayHighlights(){
+function showBookmarks(){
 
-let saved=localStorage.getItem("highlights")
+let saved=localStorage.getItem("bookmarks")
 
-if(saved){
+if(saved)
 
-document.getElementById("savedHighlights").innerHTML=saved
-
-}
+ document.getElementById("savedBookmarks").innerHTML=saved
 
 }
 
-displayHighlights()
+showBookmarks()
 
-// SAVE NOTES
 function saveNote(){
 
 if(!loggedIn){
 
-alert("Login to save notes.")
+alert("Login to save notes")
+
 return
 
 }
 
 let note=document.getElementById("noteText").value
 
-let saved=localStorage.getItem("notes")
-
-if(!saved) saved=""
+let saved=localStorage.getItem("notes")||""
 
 saved+=note+"<br><br>"
 
 localStorage.setItem("notes",saved)
 
-displayNotes()
+showNotes()
 
 }
 
-function displayNotes(){
+function showNotes(){
 
 let saved=localStorage.getItem("notes")
 
-if(saved){
+if(saved)
 
-document.getElementById("savedNotes").innerHTML=saved
-
-}
+ document.getElementById("savedNotes").innerHTML=saved
 
 }
 
-displayNotes()
+showNotes()
+
+function searchBible(){
+
+let q=document.getElementById("searchBox").value.toLowerCase()
+
+let verses=bibleText.split("\n")
+
+let results=""
+
+for(let v of verses){
+
+ if(v.toLowerCase().includes(q)){
+
+  results+=v+"<br><br>"
+
+ }
+
+}
+
+document.getElementById("searchResults").innerHTML=results
+
+}
+
+const daily=[
+"Psalm 46:1 God is our refuge and strength.",
+"Proverbs 3:5 Trust in the Lord with all your heart.",
+"Joshua 1:9 Be strong and courageous.",
+"Romans 8:28 God works all things for good."
+]
+
+let verse=daily[Math.floor(Math.random()*daily.length)]
+
+document.getElementById("dailyVerse").innerText="Verse of the Day: "+verse
+```
+
