@@ -116,3 +116,9 @@ border-radius:18px;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
 text-align:center;
 }
+
+body{
+background:
+linear-gradient(180deg,#ffe6f1,#fff7fb),
+url("https://www.transparenttextures.com/patterns/flower-trail.png");
+}
