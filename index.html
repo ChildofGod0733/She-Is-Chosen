@@ -1,193 +1,68 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>She Is Chosen</title>
-
+<title>Bible Study</title>
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
 <header>
-
-<h1>🦋 She Is Chosen</h1>
-<p>Proverbs 31:25 — She is clothed in strength and dignity</p>
-
+<h1>Bible Study</h1>
 </header>
 
-<nav>
-
-<button onclick="showTab('home')">Home</button> <button onclick="showTab('bible')">Bible</button> <button onclick="showTab('saved')">Saved</button> <button onclick="showTab('notes')">Notes</button> <button onclick="showTab('devotionals')">Devotionals</button> <button onclick="showTab('discussion')">Discussion</button> <button onclick="showTab('music')">Music</button> <button onclick="showTab('tips')">Tips</button> <button onclick="showTab('prayer')">Prayer</button>
-
-</nav>
-
-<section id="home" class="tab active">
-
-<div class="card">
-
-<h2>Login (Optional)</h2>
-
-<p>You only need to log in if you want to save notes.</p>
-
+<!-- LOGIN -->
+<div id="loginBox">
+<h3>Login (Optional)</h3>
 <input id="firstName" placeholder="First Name">
-
 <input id="username" placeholder="Username">
-
 <input id="password" placeholder="Password (name + 3 numbers)">
-
 <button onclick="login()">Login</button>
+<p id="loginStatus"></p>
+</div>
 
-<p id="loginMsg"></p>
+<!-- TABS -->
+<div class="tabs">
+<button onclick="openTab('bible')">Bible</button>
+<button onclick="openTab('notes')">Notes</button>
+<button onclick="openTab('highlighted')">Highlights</button>
+</div>
+
+<!-- BIBLE TAB -->
+<div id="bible" class="tab">
+
+<h2>Bible Reader</h2>
+
+<div id="bibleText"></div>
+
+<button onclick="saveHighlight()">Save Highlight</button>
 
 </div>
 
-</section>
+<!-- NOTES TAB -->
+<div id="notes" class="tab">
 
-<section id="bible" class="tab">
+<h2>Notes</h2>
 
-<div class="card">
+<textarea id="noteText" placeholder="Write notes here..."></textarea>
+<br>
+<button onclick="saveNote()">Save Note</button>
 
-<h2>Scrollable Bible</h2>
-
-<p>Select a book to begin scrolling through it.</p>
-
-<select id="bookSelector">
-
-<option value="Genesis">Genesis</option>
-<option value="Exodus">Exodus</option>
-<option value="Psalms">Psalms</option>
-<option value="Matthew">Matthew</option>
-<option value="John">John</option>
-<option value="Romans">Romans</option>
-
-</select>
-
-<button onclick="startBible()">Load Book</button>
-
-<div id="bibleContainer"></div>
-
-<button onclick="loadMore()">Load Next Chapter</button>
+<div id="savedNotes"></div>
 
 </div>
 
-</section>
+<!-- HIGHLIGHT TAB -->
+<div id="highlighted" class="tab">
 
-<section id="saved" class="tab">
+<h2>Saved Highlights</h2>
 
-<div class="card">
-
-<h2>Saved Verses</h2>
-
-<div id="savedVerses"></div>
+<div id="savedHighlights"></div>
 
 </div>
 
-</section>
-
-<section id="notes" class="tab">
-
-<div class="card">
-
-<h2>Study Notes</h2>
-
-<textarea id="notes"></textarea>
-
-<button onclick="saveNotes()">Save Notes</button>
-
-</div>
-
-</section>
-
-<section id="devotionals" class="tab">
-
-<div class="card">
-
-<h2>Devotionals</h2>
-
-<textarea id="devText"></textarea>
-
-<button onclick="postDev()">Post</button>
-
-<div id="devList"></div>
-
-</div>
-
-</section>
-
-<section id="discussion" class="tab">
-
-<div class="card">
-
-<h2>Discussion Thread</h2>
-
-<textarea id="discText"></textarea>
-
-<button onclick="postDiscussion()">Post</button>
-
-<div id="discList"></div>
-
-</div>
-
-</section>
-
-<section id="music" class="tab">
-
-<div class="card">
-
-<h2>Worship Music</h2>
-
-<input id="songLink" placeholder="Paste YouTube link">
-
-<button onclick="addSong()">Add Song</button>
-
-<div id="musicList"></div>
-
-</div>
-
-</section>
-
-<section id="tips" class="tab">
-
-<div class="card">
-
-<h2>Bible Study Tips</h2>
-
-<textarea id="tipText"></textarea>
-
-<button onclick="postTip()">Share Tip</button>
-
-<div id="tipList"></div>
-
-</div>
-
-</section>
-
-<section id="prayer" class="tab">
-
-<div class="card">
-
-<h2>Prayer Requests</h2>
-
-<textarea id="prayText"></textarea>
-
-<button onclick="postPrayer()">Share</button>
-
-<div id="prayList"></div>
-
-</div>
-
-</section>
-
-<script src="app.js"></script>
+<script src="script.js"></script>
 
 </body>
-
 </html>
-
