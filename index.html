@@ -1,11 +1,13 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>She is Chosen</title>
+<title>She Is Chosen</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,148 +17,174 @@
 
 <header>
 
-<h1>🦋 She is Chosen</h1>
-
-<p class="verse">
-Proverbs 31:25 — She is clothed in strength and dignity
-</p>
+<h1>🦋 She Is Chosen</h1>
+<p>Proverbs 31:25 — She is clothed in strength and dignity</p>
 
 </header>
 
-
 <nav>
 
-<a href="#verse">Verse</a>
-<a href="#bible">Bible</a>
-<a href="#devotionals">Devotionals</a>
-<a href="#music">Worship</a>
-<a href="#discussion">Discussion</a>
-<a href="#prayer">Prayer</a>
-<a href="#tips">Tips</a>
-<a href="#saved">Saved</a>
+<button onclick="showTab('home')">Home</button> <button onclick="showTab('bible')">Bible</button> <button onclick="showTab('saved')">Saved</button> <button onclick="showTab('notes')">Notes</button> <button onclick="showTab('devotionals')">Devotionals</button> <button onclick="showTab('discussion')">Discussion</button> <button onclick="showTab('music')">Music</button> <button onclick="showTab('tips')">Tips</button> <button onclick="showTab('prayer')">Prayer</button>
 
 </nav>
 
+<section id="home" class="tab active">
 
+<div class="card">
 
-<section id="login" class="card">
+<h2>Login (Optional)</h2>
 
-<h2>Choose Username</h2>
+<p>You only need to log in if you want to save notes.</p>
 
-<input id="usernameInput" placeholder="username">
+<input id="firstName" placeholder="First Name">
 
-<button onclick="saveUsername()">Enter</button>
+<input id="username" placeholder="Username">
 
-</section>
+<input id="password" placeholder="Password (name + 3 numbers)">
 
+<button onclick="login()">Login</button>
 
+<p id="loginMsg"></p>
 
-<section id="verse" class="card">
-
-<h2>Verse of the Day</h2>
-
-<p id="dailyVerse"></p>
-
-<button onclick="saveVerse()">Save Verse</button>
+</div>
 
 </section>
 
+<section id="bible" class="tab">
 
+<div class="card">
 
-<section id="bible" class="card">
+<h2>Bible Reader</h2>
 
-<h2>Search the Bible</h2>
+<select id="book">
 
-<input id="searchInput" placeholder="John 3:16">
+<option>Genesis</option>
+<option>Exodus</option>
+<option>Psalms</option>
+<option>Matthew</option>
+<option>John</option>
+<option>Romans</option>
 
-<button onclick="searchBible()">Search</button>
+</select>
 
-<p id="bibleResult"></p>
+<input id="chapter" placeholder="Chapter Number">
 
-</section>
+<button onclick="loadChapter()">Load Chapter</button>
 
+<div id="bibleText"></div>
 
-
-<section id="devotionals" class="card">
-
-<h2>Devotionals</h2>
-
-<textarea id="devotionalText"></textarea>
-
-<button onclick="postDevotional()">Post</button>
-
-<div id="devotionalList"></div>
-
-</section>
-
-
-
-<section id="music" class="card">
-
-<h2>Worship Music</h2>
-
-<input id="musicLink" placeholder="YouTube link">
-
-<button onclick="addMusic()">Add</button>
-
-<div id="musicList"></div>
+</div>
 
 </section>
 
+<section id="saved" class="tab">
 
-
-<section id="discussion" class="card">
-
-<h2>Discussion Thread</h2>
-
-<textarea id="discussionText"></textarea>
-
-<button onclick="postDiscussion()">Post</button>
-
-<div id="discussionList"></div>
-
-</section>
-
-
-
-<section id="prayer" class="card">
-
-<h2>Prayer & Praise</h2>
-
-<textarea id="prayerText"></textarea>
-
-<button onclick="postPrayer()">Share</button>
-
-<div id="prayerList"></div>
-
-</section>
-
-
-
-<section id="tips" class="card">
-
-<h2>Study Tips From Others</h2>
-
-<textarea id="tipText"></textarea>
-
-<button onclick="postTip()">Share Tip</button>
-
-<div id="tipsList"></div>
-
-</section>
-
-
-
-<section id="saved" class="card">
+<div class="card">
 
 <h2>Saved Verses</h2>
 
 <div id="savedVerses"></div>
 
+</div>
+
 </section>
 
+<section id="notes" class="tab">
+
+<div class="card">
+
+<h2>Study Notes</h2>
+
+<textarea id="notes"></textarea>
+
+<button onclick="saveNotes()">Save Notes</button>
+
+</div>
+
+</section>
+
+<section id="devotionals" class="tab">
+
+<div class="card">
+
+<h2>Devotionals</h2>
+
+<textarea id="devText"></textarea>
+
+<button onclick="postDev()">Post</button>
+
+<div id="devList"></div>
+
+</div>
+
+</section>
+
+<section id="discussion" class="tab">
+
+<div class="card">
+
+<h2>Discussion Thread</h2>
+
+<textarea id="discText"></textarea>
+
+<button onclick="postDiscussion()">Post</button>
+
+<div id="discList"></div>
+
+</div>
+
+</section>
+
+<section id="music" class="tab">
+
+<div class="card">
+
+<h2>Worship Music</h2>
+
+<input id="songLink" placeholder="Paste YouTube link">
+
+<button onclick="addSong()">Add Song</button>
+
+<div id="musicList"></div>
+
+</div>
+
+</section>
+
+<section id="tips" class="tab">
+
+<div class="card">
+
+<h2>Bible Study Tips</h2>
+
+<textarea id="tipText"></textarea>
+
+<button onclick="postTip()">Share Tip</button>
+
+<div id="tipList"></div>
+
+</div>
+
+</section>
+
+<section id="prayer" class="tab">
+
+<div class="card">
+
+<h2>Prayer Requests</h2>
+
+<textarea id="prayText"></textarea>
+
+<button onclick="postPrayer()">Share</button>
+
+<div id="prayList"></div>
+
+</div>
+
+</section>
 
 <script src="app.js"></script>
 
 </body>
+
 </html>
