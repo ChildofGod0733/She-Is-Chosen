@@ -97,3 +97,30 @@ document.getElementById("dailyVerse").innerText = verses[random]
 }
 
 loadVerse()
+function makeWallpaper(){
+
+let verse = document.getElementById("verseText").innerText
+
+let canvas = document.createElement("canvas")
+canvas.width = 800
+canvas.height = 800
+
+let ctx = canvas.getContext("2d")
+
+ctx.fillStyle = "#ffe6f1"
+ctx.fillRect(0,0,800,800)
+
+ctx.fillStyle = "#444"
+ctx.font = "30px Quicksand"
+
+ctx.fillText(verse,100,400)
+
+let link = document.createElement("a")
+
+link.download = "verse.png"
+
+link.href = canvas.toDataURL()
+
+link.click()
+
+}
