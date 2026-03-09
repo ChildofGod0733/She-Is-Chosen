@@ -55,3 +55,17 @@ document.getElementById("discussionPosts").appendChild(post)
 document.getElementById("discussionInput").value=""
 
 }
+function loadSpotify(){
+
+let link = document.getElementById("spotifyLink").value
+
+if(link.includes("open.spotify.com")){
+
+let embed = link.replace("open.spotify.com","open.spotify.com/embed")
+
+document.getElementById("spotifyPlayer").innerHTML =
+`<iframe style="border-radius:12px" src="${embed}" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`
+
+}
+
+}
