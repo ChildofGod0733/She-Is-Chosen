@@ -54,24 +54,26 @@
 
 <div class="card">
 
-<h2>Bible Reader</h2>
+<h2>Scrollable Bible</h2>
 
-<select id="book">
+<p>Select a book to begin scrolling through it.</p>
 
-<option>Genesis</option>
-<option>Exodus</option>
-<option>Psalms</option>
-<option>Matthew</option>
-<option>John</option>
-<option>Romans</option>
+<select id="bookSelector">
+
+<option value="Genesis">Genesis</option>
+<option value="Exodus">Exodus</option>
+<option value="Psalms">Psalms</option>
+<option value="Matthew">Matthew</option>
+<option value="John">John</option>
+<option value="Romans">Romans</option>
 
 </select>
 
-<input id="chapter" placeholder="Chapter Number">
+<button onclick="startBible()">Load Book</button>
 
-<button onclick="loadChapter()">Load Chapter</button>
+<div id="bibleContainer"></div>
 
-<div id="bibleText"></div>
+<button onclick="loadMore()">Load Next Chapter</button>
 
 </div>
 
@@ -188,3 +190,4 @@
 </body>
 
 </html>
+
