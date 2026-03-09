@@ -1,72 +1,132 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+let loggedIn = false
 
-const firebaseConfig = {
-apiKey: "AIzaSyDKF0gf1cR1C4qto9iNnoKRKE7T4WO-KhI",
-authDomain: "she-is-chosen.firebaseapp.com",
-projectId: "she-is-chosen",
-storageBucket: "she-is-chosen.firebasestorage.app",
-messagingSenderId: "836410295991",
-appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
-};
+// TAB SWITCHING
+function openTab(tabName){
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let tabs = document.getElementsByClassName("tab")
 
-window.showSection=function(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"))
-document.getElementById(id).classList.add("active")
+for(let i=0;i<tabs.length;i++){
+tabs[i].style.display="none"
 }
 
-window.getVerse=async function(){
-let ref=document.getElementById("reference").value
-let res=await fetch(`https://bible-api.com/${ref}`)
-let data=await res.json()
-document.getElementById("verseResult").innerText=data.text
+document.getElementById(tabName).style.display="block"
+
 }
 
-window.saveUsername=function(){
-let name=document.getElementById("username").value
-localStorage.setItem("username",name)
-document.getElementById("welcome").innerText="Welcome "+name+" 🩷"
+openTab("bible")
+
+// LOGIN
+function login(){
+
+let name=document.getElementById("firstName").value
+let user=document.getElementById("username").value
+let pass=document.getElementById("password").value
+
+if(name && user && pass){
+
+loggedIn=true
+document.getElementById("loginStatus").innerText="Logged in! Notes will save."
+
+}else{
+
+document.getElementById("loginStatus").innerText="Fill all fields."
+
 }
 
-window.postDevotional=async function(){
-let text=document.getElementById("devotionalText").value
-await addDoc(collection(db,"devotionals"),{text})
 }
 
-window.postDiscussion=async function(){
-let text=document.getElementById("discussionText").value
-await addDoc(collection(db,"discussion"),{text})
+// BIBLE TEXT
+const bible = `
+Genesis 1:1 In the beginning God created the heaven and the earth.
+
+John 3:16 For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.
+
+Psalm 23:1 The Lord is my shepherd; I shall not want.
+
+Proverbs 17:17 A friend loves at all times.
+
+Proverbs 18:24 A friend sticks closer than a brother.
+
+Romans 8:28 And we know that in all things God works for the good of those who love him.
+`
+
+document.getElementById("bibleText").innerText=bible
+
+// HIGHLIGHTING
+let selectedText=""
+
+document.getElementById("bibleText").addEventListener("mouseup",function(){
+
+selectedText=window.getSelection().toString()
+
+})
+
+// SAVE HIGHLIGHT
+function saveHighlight(){
+
+if(selectedText=="") return
+
+let saved=localStorage.getItem("highlights")
+
+if(!saved) saved=""
+
+saved+=selectedText+"<br><br>"
+
+localStorage.setItem("highlights",saved)
+
+displayHighlights()
+
 }
 
-window.addSong=async function(){
-let link=document.getElementById("songLink").value
-await addDoc(collection(db,"songs"),{link})
+// DISPLAY HIGHLIGHTS
+function displayHighlights(){
+
+let saved=localStorage.getItem("highlights")
+
+if(saved){
+
+document.getElementById("savedHighlights").innerHTML=saved
+
 }
 
-window.postTip=async function(){
-let tip=document.getElementById("tipText").value
-await addDoc(collection(db,"tips"),{tip})
 }
 
-window.saveNotes=async function(){
-let text=document.getElementById("notesText").value
-await addDoc(collection(db,"notes"),{text})
+displayHighlights()
+
+// SAVE NOTES
+function saveNote(){
+
+if(!loggedIn){
+
+alert("Login to save notes.")
+return
+
 }
 
-window.savePrayer=async function(){
-let text=document.getElementById("prayerText").value
-await addDoc(collection(db,"prayers"),{text})
+let note=document.getElementById("noteText").value
+
+let saved=localStorage.getItem("notes")
+
+if(!saved) saved=""
+
+saved+=note+"<br><br>"
+
+localStorage.setItem("notes",saved)
+
+displayNotes()
+
 }
 
-async function getDailyVerse(){
-let verses=["Jeremiah 29:11","Psalm 46:5","Isaiah 41:10","Romans 8:28"]
-let random=verses[Math.floor(Math.random()*verses.length)]
-let res=await fetch(`https://bible-api.com/${random}`)
-let data=await res.json()
-document.getElementById("dailyVerse").innerText=data.text
+function displayNotes(){
+
+let saved=localStorage.getItem("notes")
+
+if(saved){
+
+document.getElementById("savedNotes").innerHTML=saved
+
 }
 
-getDailyVerse()
+}
+
+displayNotes()
