@@ -1,88 +1,71 @@
 body{
-
 font-family:Georgia;
 background:#fff5fb;
 margin:0;
 color:#6d4a61;
-
 }
 
 header{
-
-text-align:center;
-padding:30px;
 background:#ffd6ec;
-
+text-align:center;
+padding:25px;
 }
 
 nav{
-
 display:flex;
 flex-wrap:wrap;
 justify-content:center;
-gap:15px;
+gap:10px;
 background:#ffe8f3;
 padding:10px;
-
 }
 
-nav a{
+nav button{
+background:#ffb6d9;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+}
 
-text-decoration:none;
-font-weight:bold;
-color:#6d4a61;
+.tab{
+display:none;
+padding:20px;
+max-width:800px;
+margin:auto;
+}
 
+.active{
+display:block;
 }
 
 .card{
-
 background:white;
 padding:20px;
-margin:20px auto;
-max-width:700px;
-border-radius:15px;
-
-box-shadow:0 4px 12px rgba(0,0,0,.08);
-
+border-radius:12px;
+margin-bottom:20px;
+box-shadow:0 4px 8px rgba(0,0,0,.05);
 }
 
-button{
-
-background:#ffb3da;
-border:none;
-padding:10px 14px;
-border-radius:10px;
-cursor:pointer;
-
-}
-
-textarea,input{
-
+textarea,input,select{
 width:100%;
-margin-top:10px;
 padding:8px;
+margin-top:10px;
 border-radius:8px;
 border:1px solid #ddd;
-
 }
 
-iframe{
-
-margin-top:10px;
-
+.highlight{
+background:yellow;
 }
 
 .butterfly{
-
 position:fixed;
 font-size:22px;
-animation:fly 12s linear infinite;
-
+animation:float 10s linear infinite;
 }
 
-@keyframes fly{
-
-0%{transform:translateY(100vh);}
-100%{transform:translateY(-20vh);}
-
+@keyframes float{
+0%{transform:translateY(100vh)}
+100%{transform:translateY(-10vh)}
 }
