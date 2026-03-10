@@ -180,4 +180,16 @@ localStorage.setItem("highlightStyle",highlightStyle)
 }
 document.getElementById(section).style.display="block"
 
+}function addMusic(){
+
+let link = document.getElementById("musicLink").value
+
+let iframe = document.createElement("iframe")
+
+iframe.src = link
+iframe.width="300"
+iframe.height="170"
+
+document.getElementById("musicList").appendChild(iframe)
+
 }
