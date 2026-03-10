@@ -219,3 +219,8 @@ iframe.height="170"
 document.getElementById("musicList").appendChild(iframe)
 
 }
+fetch("kjv.json")
+.then(res=>res.json())
+.then(data=>{
+bible=data
+})
