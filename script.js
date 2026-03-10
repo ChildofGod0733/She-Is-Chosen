@@ -143,3 +143,14 @@ document.getElementById("loginScreen").style.display="none"
 link.click()
 
 }
+function showSection(section){
+
+let sections = document.querySelectorAll(".section")
+
+sections.forEach(sec=>{
+sec.style.display="none"
+})
+
+document.getElementById(section).style.display="block"
+
+}
