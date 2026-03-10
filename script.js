@@ -150,7 +150,17 @@ let sections = document.querySelectorAll(".section")
 sections.forEach(sec=>{
 sec.style.display="none"
 })
+let highlightStyle = localStorage.getItem("highlightStyle")
 
+if(!highlightStyle){
+
+highlightStyle = prompt(
+"Choose your highlight style:\n1 = Pastel\n2 = Neon\n3 = Bold"
+)
+
+localStorage.setItem("highlightStyle",highlightStyle)
+
+}
 document.getElementById(section).style.display="block"
 
 }
