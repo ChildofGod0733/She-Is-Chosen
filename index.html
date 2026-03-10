@@ -32,12 +32,17 @@
 <button onclick="showSection('bible')">Open</button>
 </div>
 
-<div class="card">
-<h2>Worship Music</h2>
-<p>Listen while you study.</p>
-<button onclick="showSection('music')">Open</button>
-</div>
+<section id="music" class="section hidden">
 
+<h2>Worship Music</h2>
+
+<input id="musicLink" placeholder="Paste Spotify or YouTube link">
+
+<button onclick="addMusic()">Add Music</button>
+
+<div id="musicList"></div>
+
+</section>
 </section>
 <head>
   <link rel="manifest" href="manifest.json">
