@@ -13,3 +13,18 @@
 }
 ]
 }
+{
+"name": "She is Chosen",
+"short_name": "Chosen",
+"start_url": "index.html",
+"display": "standalone",
+"background_color": "#ffe6f1",
+"theme_color": "#ff8fb1",
+"icons":[
+{
+"src":"icon.png",
+"sizes":"512x512",
+"type":"image/png"
+}
+]
+}
