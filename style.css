@@ -1,3 +1,10 @@
+header{
+position:relative;
+top:0;
+width:100%;
+background:#ff8fb1;
+padding:25px;
+}
 body{
 font-family:'Quicksand', sans-serif;
 background:linear-gradient(180deg,#ffe6f1,#fff7fb);
