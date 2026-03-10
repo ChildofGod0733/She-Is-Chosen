@@ -102,7 +102,7 @@ const verses = [
 "The Lord is my shepherd – Psalm 23:1",
 
 "Let all that you do be done in love – 1 Corinthians 16:14"
-
+"A True Friend Loves at all times" - Proverbs 17:17
 ]
 
 function loadVerse(){
@@ -124,19 +124,45 @@ canvas.height = 800
 
 let ctx = canvas.getContext("2d")
 
-ctx.fillStyle = "#ffe6f1"
+ctx.fillStyle="#ffe6f1"
 ctx.fillRect(0,0,800,800)
 
-ctx.fillStyle = "#444"
-ctx.font = "30px Quicksand"
+ctx.fillStyle="#444"
+ctx.font="30px Quicksand"
 
-ctx.fillText(verse,100,400)
+let words = verse.split(" ")
+let line=""
+let y=300
 
-let link = document.createElement("a")
+for(let i=0;i<words.length;i++){
 
-link.download = "verse.png"
+let testLine=line+words[i]+" "
+let width=ctx.measureText(testLine).width
 
-link.href = canvas.toDataURL()
+if(width>720){
+
+ctx.fillText(line,40,y)
+line=words[i]+" "
+y+=40
+
+}else{
+
+line=testLine
+
+}
+
+}
+
+ctx.fillText(line,40,y)
+
+let link=document.createElement("a")
+
+link.download="verse.png"
+link.href=canvas.toDataURL()
+
+link.click()
+
+}
 
   function login(){
 
