@@ -13,8 +13,25 @@ function highlightVerse(){
 
 let verse = document.getElementById("verseText")
 
-verse.style.background = "#fff3a6"
+if(highlightStyle == "1"){
 
+verse.style.background="#ffd6f2"
+
+}
+
+if(highlightStyle == "2"){
+
+verse.style.background="#39ff14"
+
+}
+
+if(highlightStyle == "3"){
+
+verse.style.background="#ff69b4"
+
+}
+
+}
 }
 
 
