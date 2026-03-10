@@ -121,6 +121,25 @@ link.download = "verse.png"
 
 link.href = canvas.toDataURL()
 
+  function login(){
+
+let name = document.getElementById("firstName").value
+let user = document.getElementById("username").value
+let pass = document.getElementById("password").value
+
+if(pass.length < 4){
+
+alert("Password should be your first name and three numbers.")
+
+return
+
+}
+
+localStorage.setItem("user",user)
+
+document.getElementById("loginScreen").style.display="none"
+
+}
 link.click()
 
 }
