@@ -1,131 +1,115 @@
-header{
-position:relative;
-top:0;
-width:100%;
-background:#ff8fb1;
-padding:25px;
-}
 body{
-font-family:'Quicksand', sans-serif;
-background:linear-gradient(180deg,#ffe6f1,#fff7fb);
-color:#444;
-margin:0;
-text-align:center;
-}
 
-/* HEADER */
+font-family: "Segoe UI", sans-serif;
+
+background:#ffe6f1;
+
+color:#444;
+
+margin:0;
+
+text-align:center;
+
+}
 
 header{
-background:linear-gradient(135deg,#ff8fb1,#ffc3d9);
-padding:30px;
+
+background:#ff9fc3;
+
+padding:25px;
+
 color:white;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
 }
 
-h1{
-margin:0;
-font-size:32px;
-letter-spacing:1px;
-}
+.verse{
 
-.keyverse{
 font-style:italic;
-margin-top:10px;
-opacity:0.9;
-}
 
-/* NAV */
+}
 
 nav{
-margin:25px;
+
+margin:15px;
+
+}
+
+nav button{
+
+background:#ffb6d5;
+
+border:none;
+
+padding:10px 18px;
+
+margin:5px;
+
+border-radius:20px;
+
+font-size:15px;
+
+}
+
+.section{
+
+display:none;
+
+padding:20px;
+
+}
+
+textarea{
+
+width:80%;
+
+height:120px;
+
+border-radius:10px;
+
+border:1px solid #ccc;
+
+padding:10px;
+
+}
+
+input{
+
+padding:10px;
+
+border-radius:15px;
+
+border:1px solid #ddd;
+
+margin:5px;
+
 }
 
 button{
-background:#ff9fbd;
-border:none;
-color:white;
-padding:10px 18px;
-margin:6px;
-border-radius:25px;
-font-size:14px;
+
 cursor:pointer;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-transition:0.2s;
+
 }
 
-button:hover{
-background:#ff7fa7;
-transform:translateY(-2px);
+#bookList button{
+
+display:block;
+
+margin:6px auto;
+
 }
 
-/* SECTIONS */
+#verseList p{
 
-.section{
-padding:30px;
-max-width:800px;
-margin:auto;
+padding:8px;
+
+border-radius:8px;
+
+margin:4px;
+
 }
 
-.hidden{
-display:none;
-}
+.highlight{
 
-/* CARDS */
+background:#ffd6f2;
 
-.card{
-background:white;
-padding:25px;
-margin:20px;
-border-radius:16px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
-}
-
-/* TEXT INPUTS */
-
-textarea,input{
-width:80%;
-padding:12px;
-border-radius:12px;
-border:1px solid #eee;
-font-family:'Quicksand', sans-serif;
-color:#555; /* softer dark grey text */
-margin-top:10px;
-}
-
-textarea::placeholder,input::placeholder{
-color:#aaa;
-}
-
-/* VERSE BOX */
-
-#verseBox{
-background:white;
-padding:25px;
-margin:20px auto;
-width:70%;
-border-radius:16px;
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
-font-size:18px;
-}
-.dashboard{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-max-width:900px;
-margin:auto;
-padding:30px;
-}
-
-.card{
-background:white;
-padding:25px;
-border-radius:18px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
-text-align:center;
-}
-
-body{
-background:
-linear-gradient(180deg,#ffe6f1,#fff7fb),
-url("https://www.transparenttextures.com/patterns/flower-trail.png");
 }
