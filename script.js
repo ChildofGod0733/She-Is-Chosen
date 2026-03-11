@@ -33,13 +33,23 @@ localStorage.setItem("highlightStyle",highlightStyle)
 
 function login(){
 
-let pass=document.getElementById("password").value
+let name = document.getElementById("firstName").value
+let username = document.getElementById("username").value
+let password = document.getElementById("password").value
+let avatar = document.getElementById("avatarURL").value
 
-if(pass.length<4){
-
+if(password.length < 4){
 alert("Password should be your first name and three numbers.")
-
 return
+}
+
+localStorage.setItem("name",name)
+localStorage.setItem("username",username)
+localStorage.setItem("avatar",avatar)
+
+document.getElementById("loginScreen").style.display="none"
+
+}
 
 }
 
