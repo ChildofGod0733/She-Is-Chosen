@@ -98,24 +98,29 @@ chapterDiv.appendChild(btn)
 
 function loadVerses(chapter){
 
-let verseDiv=document.getElementById("verseList")
+let verseDiv = document.getElementById("verseList")
 
 verseDiv.innerHTML=""
 
 chapter.forEach((verse,i)=>{
 
-let p=document.createElement("p")
+let p = document.createElement("p")
 
-p.innerText=(i+1)+". "+verse
+p.innerText = (i+1) + ". " + verse
 
-p.onclick=()=>highlightVerse(p)
+/* highlight when clicked */
+
+p.addEventListener("click", function(){
+
+highlightVerse(p)
+
+})
 
 verseDiv.appendChild(p)
 
 })
 
 }
-
 function highlightVerse(v){
 
 if(highlightStyle=="1") v.style.background="#ffd6f2"
