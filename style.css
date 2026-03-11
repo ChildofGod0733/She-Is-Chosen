@@ -4,11 +4,11 @@ font-family: "Segoe UI", sans-serif;
 
 background:#ffe6f1;
 
-color:#444;
-
 margin:0;
 
 text-align:center;
+
+color:#444;
 
 }
 
@@ -22,31 +22,17 @@ color:white;
 
 }
 
-.verse{
-
-font-style:italic;
-
-}
-
-nav{
-
-margin:15px;
-
-}
-
 nav button{
 
 background:#ffb6d5;
 
 border:none;
 
-padding:10px 18px;
+padding:10px 16px;
 
 margin:5px;
 
 border-radius:20px;
-
-font-size:15px;
 
 }
 
@@ -58,6 +44,31 @@ padding:20px;
 
 }
 
+#bookList button,
+#chapterList button{
+
+background:#ffd6ea;
+
+border:none;
+
+padding:8px;
+
+margin:5px;
+
+border-radius:14px;
+
+}
+
+#verseList p{
+
+padding:8px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
 textarea{
 
 width:80%;
@@ -66,7 +77,7 @@ height:120px;
 
 border-radius:10px;
 
-border:1px solid #ccc;
+border:1px solid #ddd;
 
 padding:10px;
 
@@ -80,36 +91,48 @@ border-radius:15px;
 
 border:1px solid #ddd;
 
-margin:5px;
+}
+
+.butterfly{
+
+position:fixed;
+
+left:10%;
+
+top:80%;
+
+font-size:30px;
+
+animation:float 10s infinite linear;
 
 }
 
-button{
+.butterfly2{
 
-cursor:pointer;
+position:fixed;
 
-}
+right:10%;
 
-#bookList button{
+top:60%;
 
-display:block;
+font-size:30px;
 
-margin:6px auto;
-
-}
-
-#verseList p{
-
-padding:8px;
-
-border-radius:8px;
-
-margin:4px;
+animation:float2 12s infinite linear;
 
 }
 
-.highlight{
+@keyframes float{
 
-background:#ffd6f2;
+0%{transform:translateY(0)}
+50%{transform:translateY(-200px)}
+100%{transform:translateY(0)}
+
+}
+
+@keyframes float2{
+
+0%{transform:translateY(0)}
+50%{transform:translateY(-150px)}
+100%{transform:translateY(0)}
 
 }
