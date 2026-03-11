@@ -19,34 +19,30 @@
 
 <h1>She is Chosen</h1>
 
-<p class="verse">“She is clothed with strength and dignity.” – Proverbs 31:25</p>
+<p class="verse">“She is clothed with strength and dignity.” — Proverbs 31:25</p>
 
 </header>
 
 <nav>
 
 <button onclick="showSection('bible')">Bible</button>
-
 <button onclick="showSection('journal')">Prayer</button>
-
 <button onclick="showSection('music')">Worship</button>
-
 <button onclick="showSection('discussion')">Discussion</button>
+<button onclick="showSection('favorites')">Favorites</button>
 
 </nav>
 
-<!-- LOGIN -->
+<!-- Login -->
 
 <div id="loginScreen">
 
 <h2>Welcome</h2>
 
-<p>Login is only required if you would like to save notes and highlights.</p>
+<p>Login only if you want to save notes.</p>
 
 <input id="firstName" placeholder="First Name">
-
 <input id="username" placeholder="Username">
-
 <input id="password" placeholder="Password (First name + 3 numbers)">
 
 <button onclick="login()">Enter</button>
@@ -59,11 +55,23 @@
 
 <h2>Bible</h2>
 
+<input id="searchInput" placeholder="Search Bible">
+
+<button onclick="searchBible()">Search</button>
+
 <div id="bookList"></div>
-
 <div id="chapterList"></div>
-
 <div id="verseList"></div>
+
+</section>
+
+<!-- FAVORITES -->
+
+<section id="favorites" class="section">
+
+<h2>Favorite Verses</h2>
+
+<div id="favoriteList"></div>
 
 </section>
 
@@ -73,7 +81,7 @@
 
 <h2>Prayer Journal</h2>
 
-<textarea id="journalText" placeholder="Write your prayer..."></textarea>
+<textarea id="journalText"></textarea>
 
 <button onclick="saveJournal()">Save</button>
 
@@ -81,7 +89,7 @@
 
 </section>
 
-<!-- MUSIC -->
+<!-- WORSHIP -->
 
 <section id="music" class="section">
 
@@ -109,8 +117,10 @@
 
 </section>
 
+<div class="butterfly">🦋</div>
+<div class="butterfly2">🦋</div>
+
 <script src="script.js"></script>
 
 </body>
-
 </html>
