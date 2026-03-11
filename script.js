@@ -123,11 +123,25 @@ verseDiv.appendChild(p)
 }
 function highlightVerse(v){
 
-if(highlightStyle=="1") v.style.background="#ffd6f2"
+function highlightVerse(verse){
 
-if(highlightStyle=="2") v.style.background="#39ff14"
+if(highlightStyle=="1"){
 
-if(highlightStyle=="3") v.style.background="#ff69b4"
+verse.style.background="#ffd6f2"  // pastel pink
+
+}
+
+else if(highlightStyle=="2"){
+
+verse.style.background="#39ff14"  // neon green
+
+}
+
+else{
+
+verse.style.background="#ff69b4"  // bold pink
+
+}
 
 }
 
