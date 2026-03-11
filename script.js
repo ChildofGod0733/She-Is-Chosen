@@ -1,3 +1,19 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+
+/* FIREBASE CONFIG */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDKF0gf1cR1C4qto9iNnoKRKE7T4WO-KhI",
+  authDomain: "she-is-chosen.firebaseapp.com",
+  projectId: "she-is-chosen",
+  storageBucket: "she-is-chosen.firebasestorage.app",
+  messagingSenderId: "836410295991",
+  appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
+}
+
+const app = initializeApp(firebaseConfig)
+const db = getFirestore(app)
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
   
