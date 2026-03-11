@@ -1,25 +1,10 @@
 {
-"name": "She is Chosen",
-"short_name": "Chosen",
-"start_url": "index.html",
-"display": "standalone",
-"background_color": "#ffe6f1",
-"theme_color": "#ff8fb1",
-"icons": [
-{
-"src": "icon.png",
-"sizes": "192x192",
-"type": "image/png"
-}
-]
-}
-{
-"name": "She is Chosen",
-"short_name": "Chosen",
-"start_url": "index.html",
-"display": "standalone",
-"background_color": "#ffe6f1",
-"theme_color": "#ff8fb1",
+"name":"She is Chosen",
+"short_name":"Chosen",
+"start_url":"index.html",
+"display":"standalone",
+"background_color":"#ffe6f1",
+"theme_color":"#ff9fc3",
 "icons":[
 {
 "src":"icon.png",
