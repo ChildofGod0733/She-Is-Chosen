@@ -1,18 +1,47 @@
-<header>
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>She is Chosen</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="style.css">
 
 <link rel="manifest" href="manifest.json">
-  
-  <h1>She is Chosen</h1>
 
-<p class="keyverse">
-“She is clothed with strength and dignity.” — Proverbs 31:25
-</p>
+</head>
+
+<body>
+
+<header>
+
+<h1>She is Chosen</h1>
+
+<p class="verse">“She is clothed with strength and dignity.” – Proverbs 31:25</p>
 
 </header>
 
+<nav>
+
+<button onclick="showSection('bible')">Bible</button>
+
+<button onclick="showSection('journal')">Prayer</button>
+
+<button onclick="showSection('music')">Worship</button>
+
+<button onclick="showSection('discussion')">Discussion</button>
+
+</nav>
+
+<!-- LOGIN -->
+
 <div id="loginScreen">
 
-<p>Login is only required if you would like to save notes, highlights, and prayers to the cloud.</p>
+<h2>Welcome</h2>
+
+<p>Login is only required if you would like to save notes and highlights.</p>
 
 <input id="firstName" placeholder="First Name">
 
@@ -23,138 +52,56 @@
 <button onclick="login()">Enter</button>
 
 </div>
-  <<!DOCTYPE html>
-<html lang="en">
-<section class="dashboard">
 
-<div class="card">
-<h2>Verse of the Day</h2>
-<p id="dailyVerse"></p>
-</div>
+<!-- BIBLE -->
 
-<div class="card">
+<section id="bible" class="section">
+
+<h2>Bible</h2>
+
+<div id="bookList"></div>
+
+<div id="chapterList"></div>
+
+<div id="verseList"></div>
+
+</section>
+
+<!-- JOURNAL -->
+
+<section id="journal" class="section">
+
 <h2>Prayer Journal</h2>
-<p>Write your prayers and reflections.</p>
-<button onclick="showSection('journal')">Open</button>
-</div>
 
-<div class="card">
-<h2>Bible Study</h2>
-<p>Read and highlight Scripture.</p>
-<button onclick="showSection('bible')">Open</button>
-</div>
+<textarea id="journalText" placeholder="Write your prayer..."></textarea>
 
-<section id="music" class="section hidden">
+<button onclick="saveJournal()">Save</button>
+
+<div id="journalEntries"></div>
+
+</section>
+
+<!-- MUSIC -->
+
+<section id="music" class="section">
 
 <h2>Worship Music</h2>
 
 <input id="musicLink" placeholder="Paste Spotify or YouTube link">
 
-<button onclick="addMusic()">Add Music</button>
+<button onclick="addMusic()">Add</button>
 
 <div id="musicList"></div>
 
 </section>
-</section>
-<head>
-  <link rel="manifest" href="manifest.json">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>She is Chosen</title>
+<!-- DISCUSSION -->
 
-<link rel="stylesheet" href="style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
-</head>
-
-<body>
-
-</header>
-
-<nav>
-<button onclick="showSection('bible')">Bible</button>
-<button onclick="showSection('journal')">Prayer Journal</button>
-<button onclick="showSection('music')">Worship Music</button>
-<button onclick="showSection('discussion')">Discussion</button>
-</nav>
-
-<section id="bible" class="section">
-
-<h2>Bible</h2>
-<section class="section">
-
-<div class="card">
-
-<h2>Verse of the Day</h2>
-
-<p id="dailyVerse">
-"For we walk by faith, not by sight." – 2 Corinthians 5:7
-</p>
-
-</div>
-
-<div class="card">
-
-<h2>Quick Prayer</h2>
-
-<p>Take a moment to pause and talk to God today.</p>
-
-<button onclick="showSection('journal')">Open Prayer Journal</button>
-
-</div>
-
-</section>
-<input type="text" id="search" placeholder="Search verses..." onkeyup="searchVerse()">
-
-<div id="verseBox">
-<p id="verseText">John 3:16 – For God so loved the world that He gave His one and only Son...</p>
-</div>
-
-<button onclick="highlightVerse()">Highlight Verse</button>
-<button onclick="favoriteVerse()">⭐ Favorite</button>
-
-</section>
-
-
-<section id="journal" class="section hidden">
-
-<h2>Prayer Journal</h2>
-
-<textarea id="journalEntry" placeholder="Write your prayer here..."></textarea>
-
-<button onclick="saveJournal()">Save Prayer</button>
-
-<div id="savedPrayers"></div>
-
-</section>
-
-
-<section id="music" class="section hidden">
-
-<h2>Worship Music</h2>
-
-<section id="music" class="section hidden">
-
-<h2>Worship Music</h2>
-
-<input id="spotifyLink" placeholder="Paste Spotify playlist or song link">
-
-<button onclick="loadSpotify()">Load Playlist</button>
-
-<div id="spotifyPlayer"></div>
-
-</section>
-</iframe>
-
-</section>
-
-
-<section id="discussion" class="section hidden">
+<section id="discussion" class="section">
 
 <h2>Discussion</h2>
 
-<textarea id="discussionInput" placeholder="Share something God has been teaching you..."></textarea>
+<input id="discussionInput" placeholder="Share encouragement">
 
 <button onclick="postDiscussion()">Post</button>
 
@@ -162,17 +109,8 @@
 
 </section>
 
-
 <script src="script.js"></script>
 
 </body>
+
 </html>
-<section id="favorites" class="section hidden">
-
-<h2>Favorite Verses</h2>
-
-<div id="favoriteList"></div>
-
-</section>
-<button onclick="showSection('favorites')">Favorites</button>
-<button onclick="makeWallpaper()">Create Verse Image</button>
