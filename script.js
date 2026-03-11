@@ -1,12 +1,10 @@
-let bibleData = []
+let bibleData=[]
 
-let highlightStyle = localStorage.getItem("highlightStyle")
+let highlightStyle=localStorage.getItem("highlightStyle")
 
 if(!highlightStyle){
 
-highlightStyle = prompt(
-"Choose highlight style:\n1 Pastel\n2 Neon\n3 Bold"
-)
+highlightStyle=prompt("Highlight style: 1 Pastel 2 Neon 3 Bold")
 
 localStorage.setItem("highlightStyle",highlightStyle)
 
@@ -16,9 +14,9 @@ localStorage.setItem("highlightStyle",highlightStyle)
 
 function login(){
 
-let pass = document.getElementById("password").value
+let pass=document.getElementById("password").value
 
-if(pass.length < 4){
+if(pass.length<4){
 
 alert("Password should be your first name and three numbers.")
 
@@ -34,15 +32,17 @@ document.getElementById("loginScreen").style.display="none"
 
 function showSection(section){
 
-let sections = document.querySelectorAll(".section")
+document.querySelectorAll(".section").forEach(s=>{
 
-sections.forEach(s => s.style.display="none")
+s.style.display="none"
+
+})
 
 document.getElementById(section).style.display="block"
 
 }
 
-/* BIBLE LOADING */
+/* LOAD BIBLE */
 
 fetch("bible.json")
 
@@ -58,11 +58,11 @@ loadBooks()
 
 function loadBooks(){
 
-let bookDiv = document.getElementById("bookList")
+let div=document.getElementById("bookList")
 
-bookDiv.innerHTML=""
+div.innerHTML=""
 
-bibleData.forEach(book => {
+bibleData.forEach(book=>{
 
 let btn=document.createElement("button")
 
@@ -70,7 +70,7 @@ btn.innerText=book.name
 
 btn.onclick=()=>loadChapters(book)
 
-bookDiv.appendChild(btn)
+div.appendChild(btn)
 
 })
 
@@ -78,70 +78,65 @@ bookDiv.appendChild(btn)
 
 function loadChapters(book){
 
-let chapterDiv=document.getElementById("chapterList")
+let div=document.getElementById("chapterList")
 
-chapterDiv.innerHTML=""
+div.innerHTML=""
 
-book.chapters.forEach((chapter,index)=>{
+book.chapters.forEach((chap,i)=>{
 
 let btn=document.createElement("button")
 
-btn.innerText="Chapter "+(index+1)
+btn.innerText="Chapter "+(i+1)
 
-btn.onclick=()=>loadVerses(chapter)
+btn.onclick=()=>loadVerses(chap)
 
-chapterDiv.appendChild(btn)
+div.appendChild(btn)
+
+})
+
+}
+
+function loadVerses(chap){
+
+let div=document.getElementById("verseList")
+
+div.innerHTML=""
+
+chap.forEach((verse,i)=>{
+
+let p=document.createElement("p")
+
+p.innerText=(i+1)+". "+verse
+
+p.onclick=()=>highlightVerse(p)
+
+div.appendChild(p)
 
 })
 
 }
 
-function loadVerses(chapter){
+/* HIGHLIGHT */
 
-let verseDiv = document.getElementById("verseList")
-
-verseDiv.innerHTML=""
-
-chapter.forEach((verse,i)=>{
-
-let p = document.createElement("p")
-
-p.innerText = (i+1) + ". " + verse
-
-/* highlight when clicked */
-
-p.addEventListener("click", function(){
-
-highlightVerse(p)
-
-})
-
-verseDiv.appendChild(p)
-
-})
-
-}
 function highlightVerse(v){
 
-function highlightVerse(verse){
+if(highlightStyle=="1") v.style.background="#ffd6f2"
 
-if(highlightStyle=="1"){
+else if(highlightStyle=="2") v.style.background="#39ff14"
 
-verse.style.background="#ffd6f2"  // pastel pink
-
-}
-
-else if(highlightStyle=="2"){
-
-verse.style.background="#39ff14"  // neon green
+else v.style.background="#ff69b4"
 
 }
 
-else{
+/* FAVORITES */
 
-verse.style.background="#ff69b4"  // bold pink
+function addFavorite(text){
 
-}
+let div=document.createElement("p")
+
+div.innerText=text
+
+document.getElementById("favoriteList").appendChild(div)
 
 }
 
@@ -151,11 +146,11 @@ function saveJournal(){
 
 let text=document.getElementById("journalText").value
 
-let div=document.createElement("p")
+let p=document.createElement("p")
 
-div.innerText=text
+p.innerText=text
 
-document.getElementById("journalEntries").appendChild(div)
+document.getElementById("journalEntries").appendChild(p)
 
 }
 
@@ -183,10 +178,52 @@ function postDiscussion(){
 
 let text=document.getElementById("discussionInput").value
 
-let div=document.createElement("p")
+let p=document.createElement("p")
 
-div.innerText=text
+p.innerText=text
 
-document.getElementById("discussionPosts").appendChild(div)
+document.getElementById("discussionPosts").appendChild(p)
+
+}
+
+/* SEARCH */
+
+function searchBible(){
+
+let term=document.getElementById("searchInput").value.toLowerCase()
+
+let results=[]
+
+bibleData.forEach(book=>{
+
+book.chapters.forEach((chap,i)=>{
+
+chap.forEach((verse,j)=>{
+
+if(verse.toLowerCase().includes(term)){
+
+results.push(book.name+" "+(i+1)+":"+ (j+1)+" "+verse)
+
+}
+
+})
+
+})
+
+})
+
+let div=document.getElementById("verseList")
+
+div.innerHTML=""
+
+results.slice(0,50).forEach(v=>{
+
+let p=document.createElement("p")
+
+p.innerText=v
+
+div.appendChild(p)
+
+})
 
 }
