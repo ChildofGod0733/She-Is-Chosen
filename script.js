@@ -171,15 +171,18 @@ document.getElementById("favoriteList").appendChild(div)
 
 /* JOURNAL */
 
-function saveJournal(){
+async function saveJournal(){
 
-let text=document.getElementById("journalText").value
+let text = document.getElementById("journalText").value
+let user = localStorage.getItem("username")
 
-let p=document.createElement("p")
+await addDoc(collection(db,"journal"),{
 
-p.innerText=text
+user:user,
+text:text,
+time:Date.now()
 
-document.getElementById("journalEntries").appendChild(p)
+})
 
 }
 
