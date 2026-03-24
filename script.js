@@ -299,7 +299,69 @@ window.setTheme = function (t) {
     document.body.style.color = "#444"
   }
 }
+/* ======================
+   BIBLE (FIXED)
+====================== */
 
+let bibleData = []
+
+fetch("bible.json")
+  .then(res => res.json())
+  .then(data => {
+    bibleData = data
+    loadBooks()
+  })
+
+function loadBooks() {
+  let div = document.getElementById("bookList")
+  if (!div) return
+
+  div.innerHTML = ""
+
+  bibleData.forEach(book => {
+    let btn = document.createElement("button")
+    btn.innerText = book.name
+    btn.onclick = () => loadChapters(book)
+    div.appendChild(btn)
+  })
+}
+
+function loadChapters(book) {
+  let div = document.getElementById("chapterList")
+  div.innerHTML = ""
+
+  book.chapters.forEach((chap, i) => {
+    let btn = document.createElement("button")
+    btn.innerText = "Chapter " + (i + 1)
+    btn.onclick = () => loadVerses(book.name, i + 1, chap)
+    div.appendChild(btn)
+  })
+}
+
+function loadVerses(bookName, chapterNum, chap) {
+  let div = document.getElementById("verseList")
+  div.innerHTML = ""
+
+  chap.forEach((verse, i) => {
+    let p = document.createElement("p")
+    p.innerText = `${bookName} ${chapterNum}:${i + 1} ${verse}`
+
+    /* SAVE VERSE */
+    p.onclick = () => saveVerse(p.innerText)
+
+    div.appendChild(p)
+  })
+}
+
+/* SAVE VERSES */
+
+function saveVerse(text) {
+  let saved = JSON.parse(localStorage.getItem("favorites") || "[]")
+  saved.push(text)
+  localStorage.setItem("favorites", JSON.stringify(saved))
+
+  alert("Saved verse 💖")
+}
 /* ======================
    NOTIFICATIONS
 ====================== */
