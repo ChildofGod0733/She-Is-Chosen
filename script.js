@@ -1,11 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
 import {
   getFirestore, collection, addDoc, onSnapshot, query, orderBy,
-  doc, updateDoc, increment
+  doc, updateDoc, deleteDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+
+/* FIREBASE */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -51,7 +53,9 @@ window.showSection = function (id) {
   document.getElementById(id).style.display = "block"
 }
 
-/* DISCUSSION */
+/* ======================
+   DISCUSSION (EDIT + DELETE)
+====================== */
 
 window.postDiscussion = async function () {
   await addDoc(collection(db, "discussion"), {
@@ -62,6 +66,8 @@ window.postDiscussion = async function () {
     likes: 0,
     time: Date.now()
   })
+
+  discussionInput.value = ""
 }
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
@@ -80,11 +86,11 @@ onSnapshot(discussionQ, snapshot => {
 
     let name = document.createElement("b")
     name.innerText = d.user
-    name.onclick = () => openProfile(d.user)
 
     let text = document.createElement("p")
     text.innerText = d.text
 
+    /* LIKE */
     let like = document.createElement("button")
     like.innerText = "❤️ " + (d.likes || 0)
     like.onclick = () => {
@@ -93,15 +99,36 @@ onSnapshot(discussionQ, snapshot => {
       })
     }
 
+    /* EDIT */
+    let editBtn = document.createElement("button")
+    editBtn.innerText = "✏️"
+    editBtn.onclick = async () => {
+      let newText = prompt("Edit your post:", d.text)
+      if (newText) {
+        await updateDoc(doc(db, "discussion", docSnap.id), {
+          text: newText
+        })
+      }
+    }
+
+    /* DELETE */
+    let deleteBtn = document.createElement("button")
+    deleteBtn.innerText = "🗑️"
+    deleteBtn.onclick = async () => {
+      if (confirm("Delete this post?")) {
+        await deleteDoc(doc(db, "discussion", docSnap.id))
+      }
+    }
+
+    /* REPLY */
     let replyBtn = document.createElement("button")
     replyBtn.innerText = "Reply"
     replyBtn.onclick = () => reply(docSnap.id)
 
     let repliesDiv = document.createElement("div")
-
     loadReplies(docSnap.id, repliesDiv)
 
-    box.append(img, name, text, like, replyBtn, repliesDiv)
+    box.append(img, name, text, like, editBtn, deleteBtn, replyBtn, repliesDiv)
     discussionPosts.appendChild(box)
   })
 })
@@ -137,57 +164,63 @@ function loadReplies(postId, container) {
   })
 }
 
-/* PROFILE */
+/* ======================
+   JOURNAL (RESTORED)
+====================== */
 
-window.openProfile = function (username) {
-  showSection("profile")
-
-  profileName.innerText = username
-  profilePosts.innerHTML = ""
-
-  document.querySelectorAll("#discussionPosts b").forEach(el => {
-    if (el.innerText === username) {
-      let p = document.createElement("p")
-      p.innerText = "Post by " + username
-      profilePosts.appendChild(p)
-    }
+window.saveJournal = async function () {
+  await addDoc(collection(db, "journal"), {
+    text: journalText.value,
+    user: localStorage.getItem("name"),
+    time: Date.now()
   })
+
+  journalText.value = ""
 }
 
-/* SEARCH */
+const journalQ = query(collection(db, "journal"), orderBy("time"))
 
-window.searchUsers = function () {
-  let term = userSearch.value.toLowerCase()
-  userResults.innerHTML = ""
+onSnapshot(journalQ, snap => {
+  journalEntries.innerHTML = ""
 
-  document.querySelectorAll("#discussionPosts b").forEach(el => {
-    if (el.innerText.toLowerCase().includes(term)) {
-      let p = document.createElement("p")
-      p.innerText = el.innerText
-      userResults.appendChild(p)
-    }
+  snap.forEach(doc => {
+    let d = doc.data()
+    let p = document.createElement("p")
+    p.innerText = d.user + ": " + d.text
+    journalEntries.appendChild(p)
   })
+})
+
+/* ======================
+   NOTES (RESTORED)
+====================== */
+
+window.saveNotes = function () {
+  localStorage.setItem("notes", notes.value)
+  alert("Notes saved!")
 }
 
-/* THEME */
-
-window.setTheme = function (t) {
-  if (t === "dark") document.body.style.background = "#222"
-  else if (t === "sage") document.body.style.background = "#d8e8d8"
-  else document.body.style.background = "#ffe6f1"
+window.onload = function () {
+  showSection("home")
+  notes.value = localStorage.getItem("notes") || ""
 }
 
-/* STREAK */
+/* ======================
+   MUSIC (RESTORED)
+====================== */
 
-let today = new Date().toDateString()
-if (localStorage.getItem("last") !== today) {
-  let s = parseInt(localStorage.getItem("streak") || 0) + 1
-  localStorage.setItem("streak", s)
-  localStorage.setItem("last", today)
+window.addMusic = function () {
+  let link = musicLink.value
+
+  let iframe = document.createElement("iframe")
+
+  if (link.includes("youtube")) {
+    let id = link.split("v=")[1]
+    iframe.src = "https://www.youtube.com/embed/" + id
+  }
+
+  iframe.width = "300"
+  iframe.height = "170"
+
+  musicList.appendChild(iframe)
 }
-
-streak.innerText = "🔥 Streak: " + localStorage.getItem("streak")
-
-/* START */
-
-window.onload = () => showSection("home")
