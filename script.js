@@ -24,20 +24,19 @@ let bibleData = []
 /* ======================
    LOGIN
 ====================== */
-
-window.login = function () {
-  let name = document.getElementById("firstName").value
-  let username = document.getElementById("username").value
+window.login = async function () {
+  let email = document.getElementById("username").value + "@chosen.com"
   let password = document.getElementById("password").value
-  let avatar = document.getElementById("avatarURL")?.value || ""
+  let name = document.getElementById("firstName").value
+  let avatar = document.getElementById("avatarURL").value
 
-  if (password.length < 4) {
-    alert("Password must be name + 3 numbers")
-    return
+  try {
+    await signInWithEmailAndPassword(auth, email, password)
+  } catch {
+    await createUserWithEmailAndPassword(auth, email, password)
   }
 
   localStorage.setItem("name", name)
-  localStorage.setItem("username", username)
   localStorage.setItem("avatar", avatar)
 
   document.getElementById("loginScreen").style.display = "none"
