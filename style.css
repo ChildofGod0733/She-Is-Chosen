@@ -156,4 +156,37 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+/* BOTTOM NAV */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 15px rgba(0,0,0,0.08);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #555;
+}
+
+.bottom-nav span {
+  font-size: 10px;
+}
+
+/* MAKE SPACE FOR NAV */
+body {
+  padding-bottom: 90px;
 }
