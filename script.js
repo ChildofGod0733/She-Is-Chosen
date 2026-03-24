@@ -1,3 +1,4 @@
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 
@@ -10,6 +11,7 @@ const firebaseConfig = {
   storageBucket: "she-is-chosen.firebasestorage.app",
   messagingSenderId: "836410295991",
   appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
+  const auth = getAuth(app)
 }
 
 const app = initializeApp(firebaseConfig)
