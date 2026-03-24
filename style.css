@@ -167,3 +167,7 @@ iframe {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+img {
+  vertical-align: middle;
+  margin-right: 8px;
+}
