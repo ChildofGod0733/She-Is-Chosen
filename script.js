@@ -1,8 +1,15 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+import {
+  getFirestore, collection, addDoc, onSnapshot, query, orderBy,
+  doc, updateDoc, increment
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
-/* FIREBASE */
+/* ======================
+   FIREBASE
+====================== */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -11,29 +18,35 @@ const firebaseConfig = {
   storageBucket: "she-is-chosen.firebasestorage.app",
   messagingSenderId: "836410295991",
   appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
-  const auth = getAuth(app)
 }
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
-
-/* GLOBAL */
-
-let bibleData = []
+const auth = getAuth(app)
 
 /* ======================
-   LOGIN
+   GLOBAL
 ====================== */
+
+let bibleData = []
+let currentUserId = null
+
+/* ======================
+   AUTH LOGIN
+====================== */
+
 window.login = async function () {
   let email = document.getElementById("username").value + "@chosen.com"
   let password = document.getElementById("password").value
   let name = document.getElementById("firstName").value
-  let avatar = document.getElementById("avatarURL").value
+  let avatar = document.getElementById("avatarURL")?.value || ""
 
   try {
-    await signInWithEmailAndPassword(auth, email, password)
+    let userCred = await signInWithEmailAndPassword(auth, email, password)
+    currentUserId = userCred.user.uid
   } catch {
-    await createUserWithEmailAndPassword(auth, email, password)
+    let userCred = await createUserWithEmailAndPassword(auth, email, password)
+    currentUserId = userCred.user.uid
   }
 
   localStorage.setItem("name", name)
@@ -92,22 +105,16 @@ function loadVerses(chap, bookName, chapterNum) {
   div.innerHTML = ""
 
   chap.forEach((verse, i) => {
-    let container = document.createElement("div")
-
     let p = document.createElement("p")
     p.innerText = `${bookName} ${chapterNum}:${i + 1} ${verse}`
     p.onclick = () => p.classList.toggle("highlight")
 
-    let favBtn = document.createElement("button")
-    favBtn.innerText = "⭐"
-    favBtn.onclick = (e) => {
-      e.stopPropagation()
-      addFavorite(p.innerText)
-    }
+    let fav = document.createElement("button")
+    fav.innerText = "⭐"
+    fav.onclick = () => addFavorite(p.innerText)
 
-    container.appendChild(p)
-    container.appendChild(favBtn)
-    div.appendChild(container)
+    div.appendChild(p)
+    div.appendChild(fav)
   })
 }
 
@@ -136,63 +143,29 @@ function loadFavorites() {
 }
 
 /* ======================
-   JOURNAL (LIVE)
-====================== */
-
-window.saveJournal = async function () {
-  let text = document.getElementById("journalText").value
-  let user = localStorage.getItem("name") || "Anonymous"
-
-  await addDoc(collection(db, "journal"), {
-    user,
-    text,
-    time: Date.now()
-  })
-
-  document.getElementById("journalText").value = ""
-}
-
-const journalQ = query(collection(db, "journal"), orderBy("time"))
-
-onSnapshot(journalQ, (snapshot) => {
-  let div = document.getElementById("journalEntries")
-  div.innerHTML = ""
-
-  snapshot.forEach(doc => {
-    let data = doc.data()
-
-    let p = document.createElement("p")
-    p.innerText = `${data.user}: ${data.text}`
-
-    div.appendChild(p)
-  })
-})
-
-/* ======================
-   DISCUSSION (LIVE + LIKES + REPLIES)
+   DISCUSSION (FULL SYSTEM)
 ====================== */
 
 window.postDiscussion = async function () {
   let text = document.getElementById("discussionInput").value
-  let user = localStorage.getItem("name") || "Anonymous"
-  let avatar = localStorage.getItem("avatar") || ""
+  let user = localStorage.getItem("name")
+  let avatar = localStorage.getItem("avatar")
 
   await addDoc(collection(db, "discussion"), {
     user,
     text,
     avatar,
     likes: 0,
+    userId: currentUserId,
     time: Date.now()
   })
-
-  document.getElementById("discussionInput").value = ""
 }
 
-window.replyToPost = async function (postId) {
-  let text = prompt("Write a reply:")
+window.replyToPost = async function (postId, postOwnerId) {
+  let text = prompt("Reply:")
   if (!text) return
 
-  let user = localStorage.getItem("name") || "Anonymous"
+  let user = localStorage.getItem("name")
 
   await addDoc(collection(db, "replies"), {
     postId,
@@ -200,7 +173,17 @@ window.replyToPost = async function (postId) {
     text,
     time: Date.now()
   })
+
+  if (postOwnerId !== currentUserId) {
+    await addDoc(collection(db, "notifications"), {
+      to: postOwnerId,
+      text: user + " replied to your post 💬",
+      time: Date.now()
+    })
+  }
 }
+
+/* LOAD POSTS */
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
 
@@ -211,31 +194,46 @@ onSnapshot(discussionQ, (snapshot) => {
   snapshot.forEach(docSnap => {
     let data = docSnap.data()
 
-    let container = document.createElement("div")
+    let box = document.createElement("div")
 
     let img = document.createElement("img")
     img.src = data.avatar || "https://via.placeholder.com/30"
     img.style.width = "30px"
     img.style.borderRadius = "50%"
 
-    let p = document.createElement("p")
-    p.innerText = `${data.user}: ${data.text}`
+    let name = document.createElement("b")
+    name.innerText = data.user
+    name.style.cursor = "pointer"
+    name.onclick = () => showProfile(data.user)
+
+    let text = document.createElement("p")
+    text.innerText = data.text
 
     let likeBtn = document.createElement("button")
     likeBtn.innerText = `❤️ ${data.likes || 0}`
+    likeBtn.onclick = async () => {
+      await updateDoc(doc(db, "discussion", docSnap.id), {
+        likes: increment(1)
+      })
+    }
 
     let replyBtn = document.createElement("button")
     replyBtn.innerText = "Reply"
-    replyBtn.onclick = () => replyToPost(docSnap.id)
+    replyBtn.onclick = () => replyToPost(docSnap.id, data.userId)
 
-    container.appendChild(img)
-    container.appendChild(p)
-    container.appendChild(likeBtn)
-    container.appendChild(replyBtn)
+    box.appendChild(img)
+    box.appendChild(name)
+    box.appendChild(text)
+    box.appendChild(likeBtn)
+    box.appendChild(replyBtn)
 
-    div.appendChild(container)
+    div.appendChild(box)
   })
 })
+
+/* ======================
+   REPLIES
+====================== */
 
 const repliesQ = query(collection(db, "replies"), orderBy("time"))
 
@@ -243,66 +241,75 @@ onSnapshot(repliesQ, (snapshot) => {
   snapshot.forEach(doc => {
     let data = doc.data()
 
-    let reply = document.createElement("p")
-    reply.innerText = `↳ ${data.user}: ${data.text}`
-    reply.style.marginLeft = "20px"
+    let p = document.createElement("p")
+    p.innerText = `↳ ${data.user}: ${data.text}`
+    p.style.marginLeft = "20px"
 
-    document.getElementById("discussionPosts").appendChild(reply)
+    document.getElementById("discussionPosts").appendChild(p)
   })
 })
 
 /* ======================
-   MUSIC
+   PROFILE
 ====================== */
 
-window.addMusic = function () {
-  let link = document.getElementById("musicLink").value
+window.showProfile = function (username) {
+  showSection("profile")
 
-  let iframe = document.createElement("iframe")
-
-  if (link.includes("youtube.com") || link.includes("youtu.be")) {
-    let id = link.split("v=")[1] || link.split("/").pop()
-    iframe.src = "https://www.youtube.com/embed/" + id
-  } else {
-    iframe.src = link
-  }
-
-  iframe.width = "300"
-  iframe.height = "170"
-
-  document.getElementById("musicList").appendChild(iframe)
+  let div = document.getElementById("profileContent")
+  div.innerHTML = `<h2>${username}'s Posts</h2>`
 }
 
 /* ======================
-   SEARCH
+   USER SEARCH
 ====================== */
 
-window.searchBible = function () {
-  let term = document.getElementById("searchInput").value.toLowerCase()
-  let results = []
+window.searchUsers = function () {
+  let term = document.getElementById("userSearch").value.toLowerCase()
 
-  bibleData.forEach(book => {
-    book.chapters.forEach((chap, i) => {
-      chap.forEach((verse, j) => {
-        if (verse.toLowerCase().includes(term)) {
-          results.push(`${book.name} ${i + 1}:${j + 1} ${verse}`)
-        }
-      })
-    })
-  })
-
-  let div = document.getElementById("verseList")
+  let div = document.getElementById("userResults")
   div.innerHTML = ""
 
-  results.slice(0, 50).forEach(v => {
-    let p = document.createElement("p")
-    p.innerText = v
-    div.appendChild(p)
+  document.querySelectorAll("#discussionPosts b").forEach(el => {
+    if (el.innerText.toLowerCase().includes(term)) {
+      let p = document.createElement("p")
+      p.innerText = el.innerText
+      div.appendChild(p)
+    }
   })
 }
 
 /* ======================
-   VERSE OF THE DAY
+   STREAK TRACKER
+====================== */
+
+function updateStreak() {
+  let today = new Date().toDateString()
+  let last = localStorage.getItem("lastVisit")
+  let streak = parseInt(localStorage.getItem("streak") || "0")
+
+  if (last !== today) {
+    streak++
+    localStorage.setItem("streak", streak)
+    localStorage.setItem("lastVisit", today)
+  }
+
+  let el = document.getElementById("streak")
+  if (el) el.innerText = "🔥 Streak: " + streak
+}
+
+/* ======================
+   THEME SWITCHER
+====================== */
+
+window.setTheme = function (theme) {
+  if (theme === "dark") document.body.style.background = "#222"
+  else if (theme === "sage") document.body.style.background = "#d8e8d8"
+  else document.body.style.background = "#ffe6f1"
+}
+
+/* ======================
+   VERSE OF DAY
 ====================== */
 
 function loadVerseOfDay() {
@@ -313,9 +320,26 @@ function loadVerseOfDay() {
   let verse = chapter[Math.floor(Math.random() * chapter.length)]
 
   let el = document.getElementById("verseOfDay")
-  if (el) {
-    el.innerText = `🌿 ${book.name}: ${verse}`
+  if (el) el.innerText = `🌿 ${book.name}: ${verse}`
+}
+
+/* ======================
+   MUSIC
+====================== */
+
+window.addMusic = function () {
+  let link = document.getElementById("musicLink").value
+  let iframe = document.createElement("iframe")
+
+  if (link.includes("youtube")) {
+    let id = link.split("v=")[1]
+    iframe.src = "https://www.youtube.com/embed/" + id
   }
+
+  iframe.width = "300"
+  iframe.height = "170"
+
+  document.getElementById("musicList").appendChild(iframe)
 }
 
 /* ======================
@@ -323,10 +347,7 @@ function loadVerseOfDay() {
 ====================== */
 
 window.onload = function () {
-  showSection("bible")
+  showSection("home")
   loadFavorites()
-}
-import { doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
+  updateStreak()
 }
