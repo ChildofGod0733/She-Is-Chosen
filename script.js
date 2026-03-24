@@ -15,7 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
-/* GLOBAL DATA */
+/* GLOBAL */
 
 let bibleData = []
 
@@ -27,6 +27,7 @@ window.login = function () {
   let name = document.getElementById("firstName").value
   let username = document.getElementById("username").value
   let password = document.getElementById("password").value
+  let avatar = document.getElementById("avatarURL")?.value || ""
 
   if (password.length < 4) {
     alert("Password must be name + 3 numbers")
@@ -35,6 +36,7 @@ window.login = function () {
 
   localStorage.setItem("name", name)
   localStorage.setItem("username", username)
+  localStorage.setItem("avatar", avatar)
 
   document.getElementById("loginScreen").style.display = "none"
 }
@@ -49,7 +51,7 @@ window.showSection = function (section) {
 }
 
 /* ======================
-   BIBLE LOADING
+   BIBLE
 ====================== */
 
 fetch("bible.json")
@@ -89,12 +91,12 @@ function loadVerses(chap, bookName, chapterNum) {
   div.innerHTML = ""
 
   chap.forEach((verse, i) => {
+    let container = document.createElement("div")
+
     let p = document.createElement("p")
     p.innerText = `${bookName} ${chapterNum}:${i + 1} ${verse}`
+    p.onclick = () => p.classList.toggle("highlight")
 
-    p.onclick = () => highlightVerse(p)
-
-    // ⭐ favorite button
     let favBtn = document.createElement("button")
     favBtn.innerText = "⭐"
     favBtn.onclick = (e) => {
@@ -102,21 +104,14 @@ function loadVerses(chap, bookName, chapterNum) {
       addFavorite(p.innerText)
     }
 
-    div.appendChild(p)
-    div.appendChild(favBtn)
+    container.appendChild(p)
+    container.appendChild(favBtn)
+    div.appendChild(container)
   })
 }
 
 /* ======================
-   HIGHLIGHT
-====================== */
-
-function highlightVerse(v) {
-  v.classList.toggle("highlight")
-}
-
-/* ======================
-   FAVORITES (LOCAL)
+   FAVORITES
 ====================== */
 
 window.addFavorite = function (text) {
@@ -140,7 +135,7 @@ function loadFavorites() {
 }
 
 /* ======================
-   JOURNAL (FIREBASE LIVE)
+   JOURNAL (LIVE)
 ====================== */
 
 window.saveJournal = async function () {
@@ -173,20 +168,37 @@ onSnapshot(journalQ, (snapshot) => {
 })
 
 /* ======================
-   DISCUSSION (LIVE)
+   DISCUSSION (LIVE + LIKES + REPLIES)
 ====================== */
 
 window.postDiscussion = async function () {
   let text = document.getElementById("discussionInput").value
   let user = localStorage.getItem("name") || "Anonymous"
+  let avatar = localStorage.getItem("avatar") || ""
 
   await addDoc(collection(db, "discussion"), {
     user,
     text,
+    avatar,
+    likes: 0,
     time: Date.now()
   })
 
   document.getElementById("discussionInput").value = ""
+}
+
+window.replyToPost = async function (postId) {
+  let text = prompt("Write a reply:")
+  if (!text) return
+
+  let user = localStorage.getItem("name") || "Anonymous"
+
+  await addDoc(collection(db, "replies"), {
+    postId,
+    user,
+    text,
+    time: Date.now()
+  })
 }
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
@@ -200,51 +212,46 @@ onSnapshot(discussionQ, (snapshot) => {
 
     let container = document.createElement("div")
 
+    let img = document.createElement("img")
+    img.src = data.avatar || "https://via.placeholder.com/30"
+    img.style.width = "30px"
+    img.style.borderRadius = "50%"
+
     let p = document.createElement("p")
     p.innerText = `${data.user}: ${data.text}`
 
     let likeBtn = document.createElement("button")
     likeBtn.innerText = `❤️ ${data.likes || 0}`
 
-    likeBtn.onclick = async () => {
-      await addDoc(collection(db, "likes"), {
-        postId: docSnap.id,
-        time: Date.now()
-      })
-    }
-window.replyToPost = async function (postId) {
-  let text = prompt("Write a reply:")
+    let replyBtn = document.createElement("button")
+    replyBtn.innerText = "Reply"
+    replyBtn.onclick = () => replyToPost(docSnap.id)
 
-  if (!text) return
-
-  let user = localStorage.getItem("name") || "Anonymous"
-
-  await addDoc(collection(db, "replies"), {
-    postId,
-    user,
-    text,
-    time: Date.now()
-  })
-}
+    container.appendChild(img)
     container.appendChild(p)
     container.appendChild(likeBtn)
+    container.appendChild(replyBtn)
 
     div.appendChild(container)
   })
 })
 
+const repliesQ = query(collection(db, "replies"), orderBy("time"))
+
+onSnapshot(repliesQ, (snapshot) => {
   snapshot.forEach(doc => {
     let data = doc.data()
 
-    let p = document.createElement("p")
-    p.innerText = `${data.user}: ${data.text}`
+    let reply = document.createElement("p")
+    reply.innerText = `↳ ${data.user}: ${data.text}`
+    reply.style.marginLeft = "20px"
 
-    div.appendChild(p)
+    document.getElementById("discussionPosts").appendChild(reply)
   })
 })
 
 /* ======================
-   MUSIC (AUTO EMBED)
+   MUSIC
 ====================== */
 
 window.addMusic = function () {
@@ -298,6 +305,8 @@ window.searchBible = function () {
 ====================== */
 
 function loadVerseOfDay() {
+  if (!bibleData.length) return
+
   let book = bibleData[Math.floor(Math.random() * bibleData.length)]
   let chapter = book.chapters[Math.floor(Math.random() * book.chapters.length)]
   let verse = chapter[Math.floor(Math.random() * chapter.length)]
