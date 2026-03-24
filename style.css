@@ -87,14 +87,27 @@ button:hover {
 
 /* DISCUSSION POSTS */
 
-#discussionPosts div {
-  text-align: left;
+#discussionPosts {
+  column-count: 1;
+  padding-bottom: 80px;
 }
 
-#discussionPosts img {
-  border-radius: 50%;
-  vertical-align: middle;
-  margin-right: 8px;
+#discussionPosts div {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 15px;
+  break-inside: avoid;
+
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+#discussionPosts div:hover {
+  transform: translateY(-4px);
 }
 
 /* PROFILE */
