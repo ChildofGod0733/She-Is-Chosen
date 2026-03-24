@@ -326,3 +326,4 @@ window.onload = function () {
   showSection("bible")
   loadFavorites()
 }
+import { doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
