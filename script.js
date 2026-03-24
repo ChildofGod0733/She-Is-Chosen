@@ -193,3 +193,6 @@ window.searchBible = function () {
     div.appendChild(p)
   })
 }
+window.onload = function () {
+  showSection("bible")
+}
