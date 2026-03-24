@@ -1,10 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 
 /* FIREBASE CONFIG */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDKF0gf1cR1C4qto9iNnoKRKE7T4WO-KhI",
+  apiKey: "YOUR_API_KEY",
   authDomain: "she-is-chosen.firebaseapp.com",
   projectId: "she-is-chosen",
   storageBucket: "she-is-chosen.firebasestorage.app",
@@ -14,246 +14,158 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-  
-let bibleData=[]
 
-let highlightStyle=localStorage.getItem("highlightStyle")
+let bibleData = []
 
-if(!highlightStyle){
+let highlightStyle = localStorage.getItem("highlightStyle")
 
-highlightStyle=prompt("Highlight style: 1 Pastel 2 Neon 3 Bold")
-
-localStorage.setItem("highlightStyle",highlightStyle)
-
+if (!highlightStyle) {
+  highlightStyle = prompt("Highlight style: 1 Pastel 2 Neon 3 Bold")
+  localStorage.setItem("highlightStyle", highlightStyle)
 }
 
 /* LOGIN */
 
-function login(){
+window.login = function () {
+  let name = document.getElementById("firstName").value
+  let username = document.getElementById("username").value
+  let password = document.getElementById("password").value
 
-let name = document.getElementById("firstName").value
-let username = document.getElementById("username").value
-let password = document.getElementById("password").value
-let avatar = document.getElementById("avatarURL").value
+  if (password.length < 4) {
+    alert("Password should be your first name and three numbers.")
+    return
+  }
 
-if(password.length < 4){
-alert("Password should be your first name and three numbers.")
-return
-}
+  localStorage.setItem("name", name)
+  localStorage.setItem("username", username)
 
-localStorage.setItem("name",name)
-localStorage.setItem("username",username)
-localStorage.setItem("avatar",avatar)
-
-document.getElementById("loginScreen").style.display="none"
-
-}
-
-document.getElementById("loginScreen").style.display="none"
-
+  document.getElementById("loginScreen").style.display = "none"
 }
 
 /* TABS */
 
-function showSection(section){
+window.showSection = function (section) {
+  document.querySelectorAll(".section").forEach(s => {
+    s.style.display = "none"
+  })
 
-document.querySelectorAll(".section").forEach(s=>{
-
-s.style.display="none"
-
-})
-
-document.getElementById(section).style.display="block"
-
+  document.getElementById(section).style.display = "block"
 }
 
 /* LOAD BIBLE */
 
 fetch("bible.json")
+  .then(res => res.json())
+  .then(data => {
+    bibleData = data
+    loadBooks()
+  })
 
-.then(res=>res.json())
+function loadBooks() {
+  let div = document.getElementById("bookList")
+  div.innerHTML = ""
 
-.then(data=>{
-
-bibleData=data
-
-loadBooks()
-
-})
-
-function loadBooks(){
-
-let div=document.getElementById("bookList")
-
-div.innerHTML=""
-
-bibleData.forEach(book=>{
-
-let btn=document.createElement("button")
-
-btn.innerText=book.name
-
-btn.onclick=()=>loadChapters(book)
-
-div.appendChild(btn)
-
-})
-
+  bibleData.forEach(book => {
+    let btn = document.createElement("button")
+    btn.innerText = book.name
+    btn.onclick = () => loadChapters(book)
+    div.appendChild(btn)
+  })
 }
 
-function loadChapters(book){
+function loadChapters(book) {
+  let div = document.getElementById("chapterList")
+  div.innerHTML = ""
 
-let div=document.getElementById("chapterList")
-
-div.innerHTML=""
-
-book.chapters.forEach((chap,i)=>{
-
-let btn=document.createElement("button")
-
-btn.innerText="Chapter "+(i+1)
-
-btn.onclick=()=>loadVerses(chap)
-
-div.appendChild(btn)
-
-})
-
+  book.chapters.forEach((chap, i) => {
+    let btn = document.createElement("button")
+    btn.innerText = "Chapter " + (i + 1)
+    btn.onclick = () => loadVerses(chap)
+    div.appendChild(btn)
+  })
 }
 
-function loadVerses(chap){
+function loadVerses(chap) {
+  let div = document.getElementById("verseList")
+  div.innerHTML = ""
 
-let div=document.getElementById("verseList")
-
-div.innerHTML=""
-
-chap.forEach((verse,i)=>{
-
-let p=document.createElement("p")
-
-p.innerText=(i+1)+". "+verse
-
-p.onclick=()=>highlightVerse(p)
-
-div.appendChild(p)
-
-})
-
+  chap.forEach((verse, i) => {
+    let p = document.createElement("p")
+    p.innerText = (i + 1) + ". " + verse
+    p.onclick = () => highlightVerse(p)
+    div.appendChild(p)
+  })
 }
 
 /* HIGHLIGHT */
 
-function highlightVerse(v){
-
-if(highlightStyle=="1") v.style.background="#ffd6f2"
-
-else if(highlightStyle=="2") v.style.background="#39ff14"
-
-else v.style.background="#ff69b4"
-
-}
-
-/* FAVORITES */
-
-function addFavorite(text){
-
-let div=document.createElement("p")
-
-div.innerText=text
-
-document.getElementById("favoriteList").appendChild(div)
-
+function highlightVerse(v) {
+  if (highlightStyle == "1") v.style.background = "#ffd6f2"
+  else if (highlightStyle == "2") v.style.background = "#39ff14"
+  else v.style.background = "#ff69b4"
 }
 
 /* JOURNAL */
 
-async function saveJournal(){
+window.saveJournal = async function () {
+  let text = document.getElementById("journalText").value
+  let user = localStorage.getItem("username")
 
-let text = document.getElementById("journalText").value
-let user = localStorage.getItem("username")
+  await addDoc(collection(db, "journal"), {
+    user: user,
+    text: text,
+    time: Date.now()
+  })
 
-await addDoc(collection(db,"journal"),{
-
-user:user,
-text:text,
-time:Date.now()
-
-})
-
+  alert("Saved!")
 }
 
 /* MUSIC */
 
-function addMusic(){
+window.addMusic = function () {
+  let link = document.getElementById("musicLink").value
 
-let link=document.getElementById("musicLink").value
+  let iframe = document.createElement("iframe")
+  iframe.src = link
+  iframe.width = "300"
+  iframe.height = "170"
 
-let iframe=document.createElement("iframe")
-
-iframe.src=link
-
-iframe.width="300"
-
-iframe.height="170"
-
-document.getElementById("musicList").appendChild(iframe)
-
+  document.getElementById("musicList").appendChild(iframe)
 }
 
 /* DISCUSSION */
 
-function postDiscussion(){
+window.postDiscussion = function () {
+  let text = document.getElementById("discussionInput").value
 
-let text=document.getElementById("discussionInput").value
+  let p = document.createElement("p")
+  p.innerText = text
 
-let p=document.createElement("p")
-
-p.innerText=text
-
-document.getElementById("discussionPosts").appendChild(p)
-
+  document.getElementById("discussionPosts").appendChild(p)
 }
 
 /* SEARCH */
 
-function searchBible(){
+window.searchBible = function () {
+  let term = document.getElementById("searchInput").value.toLowerCase()
+  let results = []
 
-let term=document.getElementById("searchInput").value.toLowerCase()
+  bibleData.forEach(book => {
+    book.chapters.forEach((chap, i) => {
+      chap.forEach((verse, j) => {
+        if (verse.toLowerCase().includes(term)) {
+          results.push(book.name + " " + (i + 1) + ":" + (j + 1) + " " + verse)
+        }
+      })
+    })
+  })
 
-let results=[]
+  let div = document.getElementById("verseList")
+  div.innerHTML = ""
 
-bibleData.forEach(book=>{
-
-book.chapters.forEach((chap,i)=>{
-
-chap.forEach((verse,j)=>{
-
-if(verse.toLowerCase().includes(term)){
-
-results.push(book.name+" "+(i+1)+":"+ (j+1)+" "+verse)
-
-}
-
-})
-
-})
-
-})
-
-let div=document.getElementById("verseList")
-
-div.innerHTML=""
-
-results.slice(0,50).forEach(v=>{
-
-let p=document.createElement("p")
-
-p.innerText=v
-
-div.appendChild(p)
-
-})
-
+  results.slice(0, 50).forEach(v => {
+    let p = document.createElement("p")
+    p.innerText = v
+    div.appendChild(p)
+  })
 }
