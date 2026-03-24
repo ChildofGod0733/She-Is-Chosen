@@ -135,14 +135,38 @@ window.addMusic = function () {
 
 /* DISCUSSION */
 
-window.postDiscussion = function () {
+import { onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+
+/* DISCUSSION */
+
+window.postDiscussion = async function () {
   let text = document.getElementById("discussionInput").value
+  let user = localStorage.getItem("username") || "Anonymous"
 
-  let p = document.createElement("p")
-  p.innerText = text
-
-  document.getElementById("discussionPosts").appendChild(p)
+  await addDoc(collection(db, "discussion"), {
+    user: user,
+    text: text,
+    time: Date.now()
+  })
 }
+
+/* LIVE UPDATES */
+
+const q = query(collection(db, "discussion"), orderBy("time"))
+
+onSnapshot(q, (snapshot) => {
+  let div = document.getElementById("discussionPosts")
+  div.innerHTML = ""
+
+  snapshot.forEach(doc => {
+    let data = doc.data()
+
+    let p = document.createElement("p")
+    p.innerText = data.user + ": " + data.text
+
+    div.appendChild(p)
+  })
+})
 
 /* SEARCH */
 
