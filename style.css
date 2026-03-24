@@ -1,43 +1,37 @@
+/* GLOBAL */
+
 body {
   font-family: "Segoe UI", sans-serif;
-  background: #ffe6f1;
   margin: 0;
-  text-align: center;
+  background: linear-gradient(135deg, #ffe6f1, #fff0f7);
   color: #444;
 }
 
 /* HEADER */
 
 header {
+  text-align: center;
+  padding: 25px;
   background: linear-gradient(135deg, #ff9fc3, #ffd6ea);
-  padding: 30px 20px;
   color: white;
-}
-
-.verse {
-  font-style: italic;
-  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 /* NAV BUTTONS */
 
-nav {
-  margin: 15px 0;
-}
-
-nav button {
-  background: #ffb6d5;
+header button {
+  background: white;
   border: none;
-  padding: 10px 16px;
+  padding: 8px 12px;
   margin: 5px;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: 0.25s;
 }
 
-nav button:hover {
-  background: #ff8fbc;
+header button:hover {
   transform: scale(1.05);
+  background: #ffe6f1;
 }
 
 /* SECTIONS */
@@ -48,126 +42,105 @@ nav button:hover {
   animation: fadeIn 0.4s ease;
 }
 
-/* BUTTONS */
+/* CARDS */
 
-button {
-  cursor: pointer;
-}
-
-/* BIBLE LISTS */
-
-#bookList button,
-#chapterList button {
-  background: #ffd6ea;
-  border: none;
-  padding: 8px 12px;
-  margin: 5px;
-  border-radius: 14px;
-  transition: 0.2s;
-}
-
-#bookList button:hover,
-#chapterList button:hover {
-  background: #ffc4df;
-}
-
-/* VERSES */
-
-#verseList p {
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-#verseList p:hover {
-  background: #fff0f7;
+.section, 
+#discussionPosts div,
+#journalEntries p,
+#profilePosts p,
+#musicList iframe {
+  background: white;
+  border-radius: 18px;
+  padding: 15px;
+  margin: 15px auto;
+  width: 85%;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
 /* INPUTS */
 
-textarea {
+input, textarea {
   width: 80%;
-  height: 120px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-top: 10px;
-}
-
-input {
-  padding: 10px;
+  padding: 12px;
+  margin: 8px;
   border-radius: 15px;
   border: 1px solid #ddd;
+  outline: none;
+}
+
+/* BUTTONS */
+
+button {
+  background: #ffb6d5;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 15px;
   margin: 5px;
+  cursor: pointer;
+  transition: 0.25s;
 }
 
-/* LOGIN BOX */
-
-#loginScreen {
-  background: white;
-  padding: 20px;
-  border-radius: 20px;
-  width: 260px;
-  margin: 40px auto;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+button:hover {
+  background: #ff8fbc;
+  transform: scale(1.05);
 }
 
-/* DISCUSSION + POSTS */
+/* DISCUSSION POSTS */
 
-#discussionPosts p {
-  background: #fff;
-  margin: 8px auto;
-  padding: 10px;
-  border-radius: 12px;
-  width: 80%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+#discussionPosts div {
+  text-align: left;
 }
 
-/* MUSIC */
+#discussionPosts img {
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 8px;
+}
 
-iframe {
-  border-radius: 12px;
+/* PROFILE */
+
+#profilePic {
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   margin: 10px;
 }
 
-/* BUTTERFLIES 🦋 */
+/* NOTIFICATIONS */
 
-.butterfly {
-  position: fixed;
-  left: 10%;
-  top: 80%;
-  font-size: 30px;
-  animation: float 10s infinite linear;
+#notifBell {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 20px;
 }
 
-.butterfly2 {
-  position: fixed;
-  right: 10%;
-  top: 60%;
-  font-size: 30px;
-  animation: float2 12s infinite linear;
+#notifications {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: none;
 }
 
-@keyframes float {
-  0% { transform: translateY(0) }
-  50% { transform: translateY(-200px) }
-  100% { transform: translateY(0) }
+/* THEMES (smooth transitions) */
+
+body {
+  transition: background 0.5s ease;
 }
 
-@keyframes float2 {
-  0% { transform: translateY(0) }
-  50% { transform: translateY(-150px) }
-  100% { transform: translateY(0) }
-}
-
-/* FADE IN */
+/* ANIMATION */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-img {
-  vertical-align: middle;
-  margin-right: 8px;
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
