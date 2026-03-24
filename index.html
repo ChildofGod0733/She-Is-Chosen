@@ -13,10 +13,8 @@
 
 <div id="verseOfDay"></div>
 <div id="streak"></div>
-<p style="font-style: italic; margin-top:10px;">
-“She is clothed with strength and dignity.” ✨
-</p>
-<div>
+
+<div class="nav">
 <button onclick="showSection('home')">🏠</button>
 <button onclick="showSection('bible')">📖</button>
 <button onclick="showSection('journal')">📝</button>
@@ -44,17 +42,14 @@
 <h2>Welcome 💖</h2>
 </section>
 
-<!-- PROFILE -->
-<section id="profile" class="section">
-<h2>Your Profile</h2>
-<img id="profilePic" width="80">
-<p id="profileName"></p>
+<!-- BIBLE -->
+<section id="bible" class="section">
+<input id="searchInput" placeholder="Search Bible">
+<button onclick="searchBible()">Search</button>
 
-<h3>Your Notes</h3>
-<div id="profileNotes"></div>
-
-<h3>Saved Verses</h3>
-<div id="profileFavorites"></div>
+<div id="bookList"></div>
+<div id="chapterList"></div>
+<div id="verseList"></div>
 </section>
 
 <!-- JOURNAL -->
@@ -84,8 +79,21 @@
 <div id="discussionPosts"></div>
 </section>
 
+<!-- PROFILE -->
+<section id="profile" class="section">
+<h2>Your Profile</h2>
+<img id="profilePic" width="80">
+<p id="profileName"></p>
+
+<h3>Your Notes</h3>
+<div id="profileNotes"></div>
+
+<h3>Saved Verses</h3>
+<div id="profileFavorites"></div>
+</section>
+
 <!-- THEMES -->
-<div>
+<div class="themes">
 <button onclick="setTheme('pink')">💖</button>
 <button onclick="setTheme('dark')">🌙</button>
 <button onclick="setTheme('sage')">🌿</button>
@@ -93,16 +101,16 @@
 <button onclick="setTheme('sunset')">🌅</button>
 </div>
 
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+<button onclick="showSection('home')">🏠</button>
+<button onclick="showSection('bible')">📖</button>
+<button onclick="showSection('journal')">📝</button>
+<button onclick="showSection('discussion')">💬</button>
+<button onclick="showSection('profile')">👤</button>
+</div>
+
 <script type="module" src="script.js"></script>
 
 </body>
 </html>
-<div class="bottom-nav">
-
-<button onclick="showSection('home')">🏠<span>Home</span></button>
-<button onclick="showSection('bible')">📖<span>Bible</span></button>
-<button onclick="showSection('journal')">📝<span>Journal</span></button>
-<button onclick="showSection('discussion')">💬<span>Community</span></button>
-<button onclick="showSection('profile')">👤<span>Profile</span></button>
-
-</div>
