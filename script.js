@@ -4,350 +4,190 @@ import {
   doc, updateDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
-
-/* ======================
-   FIREBASE
-====================== */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "she-is-chosen.firebaseapp.com",
-  projectId: "she-is-chosen",
-  storageBucket: "she-is-chosen.firebasestorage.app",
-  messagingSenderId: "836410295991",
-  appId: "1:836410295991:web:d7831a2187d1e9b5602f32"
+  projectId: "she-is-chosen"
 }
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
 
-/* ======================
-   GLOBAL
-====================== */
-
-let bibleData = []
 let currentUserId = null
 
-/* ======================
-   AUTH LOGIN
-====================== */
+/* LOGIN */
 
 window.login = async function () {
-  let email = document.getElementById("username").value + "@chosen.com"
-  let password = document.getElementById("password").value
-  let name = document.getElementById("firstName").value
-  let avatar = document.getElementById("avatarURL")?.value || ""
+  let email = username.value + "@chosen.com"
+  let password = password.value
+  let name = firstName.value
+  let avatar = avatarURL.value
 
   try {
-    let userCred = await signInWithEmailAndPassword(auth, email, password)
-    currentUserId = userCred.user.uid
+    let user = await signInWithEmailAndPassword(auth, email, password)
+    currentUserId = user.user.uid
   } catch {
-    let userCred = await createUserWithEmailAndPassword(auth, email, password)
-    currentUserId = userCred.user.uid
+    let user = await createUserWithEmailAndPassword(auth, email, password)
+    currentUserId = user.user.uid
   }
 
   localStorage.setItem("name", name)
   localStorage.setItem("avatar", avatar)
 
-  document.getElementById("loginScreen").style.display = "none"
+  profileName.innerText = name
+  profilePic.src = avatar
+
+  loginScreen.style.display = "none"
 }
 
-/* ======================
-   NAVIGATION
-====================== */
+/* NAV */
 
-window.showSection = function (section) {
+window.showSection = function (id) {
   document.querySelectorAll(".section").forEach(s => s.style.display = "none")
-  document.getElementById(section).style.display = "block"
+  document.getElementById(id).style.display = "block"
 }
 
-/* ======================
-   BIBLE
-====================== */
-
-fetch("bible.json")
-  .then(res => res.json())
-  .then(data => {
-    bibleData = data
-    loadBooks()
-    loadVerseOfDay()
-  })
-
-function loadBooks() {
-  let div = document.getElementById("bookList")
-  div.innerHTML = ""
-
-  bibleData.forEach(book => {
-    let btn = document.createElement("button")
-    btn.innerText = book.name
-    btn.onclick = () => loadChapters(book)
-    div.appendChild(btn)
-  })
-}
-
-function loadChapters(book) {
-  let div = document.getElementById("chapterList")
-  div.innerHTML = ""
-
-  book.chapters.forEach((chap, i) => {
-    let btn = document.createElement("button")
-    btn.innerText = "Chapter " + (i + 1)
-    btn.onclick = () => loadVerses(chap, book.name, i + 1)
-    div.appendChild(btn)
-  })
-}
-
-function loadVerses(chap, bookName, chapterNum) {
-  let div = document.getElementById("verseList")
-  div.innerHTML = ""
-
-  chap.forEach((verse, i) => {
-    let p = document.createElement("p")
-    p.innerText = `${bookName} ${chapterNum}:${i + 1} ${verse}`
-    p.onclick = () => p.classList.toggle("highlight")
-
-    let fav = document.createElement("button")
-    fav.innerText = "⭐"
-    fav.onclick = () => addFavorite(p.innerText)
-
-    div.appendChild(p)
-    div.appendChild(fav)
-  })
-}
-
-/* ======================
-   FAVORITES
-====================== */
-
-window.addFavorite = function (text) {
-  let favs = JSON.parse(localStorage.getItem("favorites") || "[]")
-  favs.push(text)
-  localStorage.setItem("favorites", JSON.stringify(favs))
-  loadFavorites()
-}
-
-function loadFavorites() {
-  let div = document.getElementById("favoriteList")
-  div.innerHTML = ""
-
-  let favs = JSON.parse(localStorage.getItem("favorites") || "[]")
-
-  favs.forEach(f => {
-    let p = document.createElement("p")
-    p.innerText = f
-    div.appendChild(p)
-  })
-}
-
-/* ======================
-   DISCUSSION (FULL SYSTEM)
-====================== */
+/* DISCUSSION */
 
 window.postDiscussion = async function () {
-  let text = document.getElementById("discussionInput").value
-  let user = localStorage.getItem("name")
-  let avatar = localStorage.getItem("avatar")
-
   await addDoc(collection(db, "discussion"), {
-    user,
-    text,
-    avatar,
-    likes: 0,
+    text: discussionInput.value,
+    user: localStorage.getItem("name"),
+    avatar: localStorage.getItem("avatar"),
     userId: currentUserId,
+    likes: 0,
     time: Date.now()
   })
 }
-
-window.replyToPost = async function (postId, postOwnerId) {
-  let text = prompt("Reply:")
-  if (!text) return
-
-  let user = localStorage.getItem("name")
-
-  await addDoc(collection(db, "replies"), {
-    postId,
-    user,
-    text,
-    time: Date.now()
-  })
-
-  if (postOwnerId !== currentUserId) {
-    await addDoc(collection(db, "notifications"), {
-      to: postOwnerId,
-      text: user + " replied to your post 💬",
-      time: Date.now()
-    })
-  }
-}
-
-/* LOAD POSTS */
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
 
-onSnapshot(discussionQ, (snapshot) => {
-  let div = document.getElementById("discussionPosts")
-  div.innerHTML = ""
+onSnapshot(discussionQ, snapshot => {
+  discussionPosts.innerHTML = ""
 
   snapshot.forEach(docSnap => {
-    let data = docSnap.data()
+    let d = docSnap.data()
 
     let box = document.createElement("div")
 
     let img = document.createElement("img")
-    img.src = data.avatar || "https://via.placeholder.com/30"
-    img.style.width = "30px"
-    img.style.borderRadius = "50%"
+    img.src = d.avatar
+    img.width = 30
 
     let name = document.createElement("b")
-    name.innerText = data.user
-    name.style.cursor = "pointer"
-    name.onclick = () => showProfile(data.user)
+    name.innerText = d.user
+    name.onclick = () => openProfile(d.user)
 
     let text = document.createElement("p")
-    text.innerText = data.text
+    text.innerText = d.text
 
-    let likeBtn = document.createElement("button")
-    likeBtn.innerText = `❤️ ${data.likes || 0}`
-    likeBtn.onclick = async () => {
-      await updateDoc(doc(db, "discussion", docSnap.id), {
+    let like = document.createElement("button")
+    like.innerText = "❤️ " + (d.likes || 0)
+    like.onclick = () => {
+      updateDoc(doc(db, "discussion", docSnap.id), {
         likes: increment(1)
       })
     }
 
     let replyBtn = document.createElement("button")
     replyBtn.innerText = "Reply"
-    replyBtn.onclick = () => replyToPost(docSnap.id, data.userId)
+    replyBtn.onclick = () => reply(docSnap.id)
 
-    box.appendChild(img)
-    box.appendChild(name)
-    box.appendChild(text)
-    box.appendChild(likeBtn)
-    box.appendChild(replyBtn)
+    let repliesDiv = document.createElement("div")
 
-    div.appendChild(box)
+    loadReplies(docSnap.id, repliesDiv)
+
+    box.append(img, name, text, like, replyBtn, repliesDiv)
+    discussionPosts.appendChild(box)
   })
 })
 
-/* ======================
-   REPLIES
-====================== */
+/* REPLIES */
 
-const repliesQ = query(collection(db, "replies"), orderBy("time"))
+async function reply(postId) {
+  let text = prompt("Reply:")
+  if (!text) return
 
-onSnapshot(repliesQ, (snapshot) => {
-  snapshot.forEach(doc => {
-    let data = doc.data()
-
-    let p = document.createElement("p")
-    p.innerText = `↳ ${data.user}: ${data.text}`
-    p.style.marginLeft = "20px"
-
-    document.getElementById("discussionPosts").appendChild(p)
+  await addDoc(collection(db, "replies"), {
+    postId,
+    text,
+    user: localStorage.getItem("name"),
+    time: Date.now()
   })
-})
-
-/* ======================
-   PROFILE
-====================== */
-
-window.showProfile = function (username) {
-  showSection("profile")
-
-  let div = document.getElementById("profileContent")
-  div.innerHTML = `<h2>${username}'s Posts</h2>`
 }
 
-/* ======================
-   USER SEARCH
-====================== */
+function loadReplies(postId, container) {
+  const q = query(collection(db, "replies"), orderBy("time"))
+
+  onSnapshot(q, snap => {
+    container.innerHTML = ""
+
+    snap.forEach(doc => {
+      let r = doc.data()
+      if (r.postId === postId) {
+        let p = document.createElement("p")
+        p.innerText = "↳ " + r.user + ": " + r.text
+        container.appendChild(p)
+      }
+    })
+  })
+}
+
+/* PROFILE */
+
+window.openProfile = function (username) {
+  showSection("profile")
+
+  profileName.innerText = username
+  profilePosts.innerHTML = ""
+
+  document.querySelectorAll("#discussionPosts b").forEach(el => {
+    if (el.innerText === username) {
+      let p = document.createElement("p")
+      p.innerText = "Post by " + username
+      profilePosts.appendChild(p)
+    }
+  })
+}
+
+/* SEARCH */
 
 window.searchUsers = function () {
-  let term = document.getElementById("userSearch").value.toLowerCase()
-
-  let div = document.getElementById("userResults")
-  div.innerHTML = ""
+  let term = userSearch.value.toLowerCase()
+  userResults.innerHTML = ""
 
   document.querySelectorAll("#discussionPosts b").forEach(el => {
     if (el.innerText.toLowerCase().includes(term)) {
       let p = document.createElement("p")
       p.innerText = el.innerText
-      div.appendChild(p)
+      userResults.appendChild(p)
     }
   })
 }
 
-/* ======================
-   STREAK TRACKER
-====================== */
+/* THEME */
 
-function updateStreak() {
-  let today = new Date().toDateString()
-  let last = localStorage.getItem("lastVisit")
-  let streak = parseInt(localStorage.getItem("streak") || "0")
-
-  if (last !== today) {
-    streak++
-    localStorage.setItem("streak", streak)
-    localStorage.setItem("lastVisit", today)
-  }
-
-  let el = document.getElementById("streak")
-  if (el) el.innerText = "🔥 Streak: " + streak
-}
-
-/* ======================
-   THEME SWITCHER
-====================== */
-
-window.setTheme = function (theme) {
-  if (theme === "dark") document.body.style.background = "#222"
-  else if (theme === "sage") document.body.style.background = "#d8e8d8"
+window.setTheme = function (t) {
+  if (t === "dark") document.body.style.background = "#222"
+  else if (t === "sage") document.body.style.background = "#d8e8d8"
   else document.body.style.background = "#ffe6f1"
 }
 
-/* ======================
-   VERSE OF DAY
-====================== */
+/* STREAK */
 
-function loadVerseOfDay() {
-  if (!bibleData.length) return
-
-  let book = bibleData[Math.floor(Math.random() * bibleData.length)]
-  let chapter = book.chapters[Math.floor(Math.random() * book.chapters.length)]
-  let verse = chapter[Math.floor(Math.random() * chapter.length)]
-
-  let el = document.getElementById("verseOfDay")
-  if (el) el.innerText = `🌿 ${book.name}: ${verse}`
+let today = new Date().toDateString()
+if (localStorage.getItem("last") !== today) {
+  let s = parseInt(localStorage.getItem("streak") || 0) + 1
+  localStorage.setItem("streak", s)
+  localStorage.setItem("last", today)
 }
 
-/* ======================
-   MUSIC
-====================== */
+streak.innerText = "🔥 Streak: " + localStorage.getItem("streak")
 
-window.addMusic = function () {
-  let link = document.getElementById("musicLink").value
-  let iframe = document.createElement("iframe")
+/* START */
 
-  if (link.includes("youtube")) {
-    let id = link.split("v=")[1]
-    iframe.src = "https://www.youtube.com/embed/" + id
-  }
-
-  iframe.width = "300"
-  iframe.height = "170"
-
-  document.getElementById("musicList").appendChild(iframe)
-}
-
-/* ======================
-   ON LOAD
-====================== */
-
-window.onload = function () {
-  showSection("home")
-  loadFavorites()
-  updateStreak()
-}
+window.onload = () => showSection("home")
