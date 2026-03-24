@@ -195,6 +195,31 @@ onSnapshot(discussionQ, (snapshot) => {
   let div = document.getElementById("discussionPosts")
   div.innerHTML = ""
 
+  snapshot.forEach(docSnap => {
+    let data = docSnap.data()
+
+    let container = document.createElement("div")
+
+    let p = document.createElement("p")
+    p.innerText = `${data.user}: ${data.text}`
+
+    let likeBtn = document.createElement("button")
+    likeBtn.innerText = `❤️ ${data.likes || 0}`
+
+    likeBtn.onclick = async () => {
+      await addDoc(collection(db, "likes"), {
+        postId: docSnap.id,
+        time: Date.now()
+      })
+    }
+
+    container.appendChild(p)
+    container.appendChild(likeBtn)
+
+    div.appendChild(container)
+  })
+})
+
   snapshot.forEach(doc => {
     let data = doc.data()
 
