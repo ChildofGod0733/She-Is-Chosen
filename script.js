@@ -7,7 +7,9 @@ import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
-/* FIREBASE */
+/* ======================
+   FIREBASE
+====================== */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -19,73 +21,110 @@ const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
 
-/* LOGIN FIXED */
+let currentUser = null
+
+/* ======================
+   LOGIN (FIXED)
+====================== */
 
 window.login = async function () {
   let email = document.getElementById("username").value + "@chosen.com"
   let pass = document.getElementById("password").value
   let name = document.getElementById("firstName").value
 
+  if (!email || !pass) {
+    alert("Please fill everything")
+    return
+  }
+
   try {
-    await signInWithEmailAndPassword(auth, email, pass)
+    let user = await signInWithEmailAndPassword(auth, email, pass)
+    currentUser = user.user.uid
   } catch {
-    await createUserWithEmailAndPassword(auth, email, pass)
+    let user = await createUserWithEmailAndPassword(auth, email, pass)
+    currentUser = user.user.uid
   }
 
   localStorage.setItem("name", name)
 
-  /* IMAGE UPLOAD */
+  /* PROFILE IMAGE UPLOAD */
   let file = document.getElementById("avatarUpload").files[0]
   if (file) {
     let reader = new FileReader()
     reader.onload = () => {
       localStorage.setItem("avatar", reader.result)
-      profilePic.src = reader.result
+      document.getElementById("profilePic").src = reader.result
     }
     reader.readAsDataURL(file)
   }
 
-  profileName.innerText = name
-  loginScreen.style.display = "none"
-  document.body.style.transition = "all 0.5s ease"
+  document.getElementById("profileName").innerText = name
+  document.getElementById("loginScreen").style.display = "none"
 }
 
-/* NAV */
+/* ======================
+   NAVIGATION
+====================== */
 
 window.showSection = function (id) {
   document.querySelectorAll(".section").forEach(s => s.style.display = "none")
   document.getElementById(id).style.display = "block"
 }
 
-/* DISCUSSION FULL */
+/* ======================
+   DISCUSSION (FULL SYSTEM)
+====================== */
 
 window.postDiscussion = async function () {
+  let text = document.getElementById("discussionInput").value
+
+  if (!text) return
+
   await addDoc(collection(db, "discussion"), {
-    text: discussionInput.value,
+    text,
     user: localStorage.getItem("name"),
     avatar: localStorage.getItem("avatar"),
+    userId: currentUser,
     likes: 0,
     time: Date.now()
   })
+
+  document.getElementById("discussionInput").value = ""
 }
 
-const q = query(collection(db, "discussion"), orderBy("time"))
+/* LOAD POSTS */
 
-onSnapshot(q, snap => {
-  discussionPosts.innerHTML = ""
+const discussionQ = query(collection(db, "discussion"), orderBy("time"))
 
-  snap.forEach(docSnap => {
+onSnapshot(discussionQ, snapshot => {
+  let container = document.getElementById("discussionPosts")
+  container.innerHTML = ""
+
+  snapshot.forEach(docSnap => {
     let d = docSnap.data()
 
-    let box = document.createElement("div")
+    let card = document.createElement("div")
+
+    /* PROFILE ROW */
+    let header = document.createElement("div")
 
     let img = document.createElement("img")
-    img.src = d.avatar
+    img.src = d.avatar || ""
     img.width = 30
 
-    let p = document.createElement("p")
-    p.innerText = d.user + ": " + d.text
+    let name = document.createElement("b")
+    name.innerText = d.user
 
+    header.append(img, name)
+
+    /* TEXT */
+    let text = document.createElement("p")
+    text.innerText = d.text
+
+    /* BUTTONS ROW */
+    let actions = document.createElement("div")
+
+    /* LIKE */
     let like = document.createElement("button")
     like.innerText = "❤️ " + (d.likes || 0)
     like.onclick = () => {
@@ -94,72 +133,211 @@ onSnapshot(q, snap => {
       })
     }
 
+    /* EDIT */
     let edit = document.createElement("button")
     edit.innerText = "✏️"
     edit.onclick = async () => {
-      let newText = prompt("Edit:", d.text)
+      if (d.userId !== currentUser) return alert("Not your post")
+      let newText = prompt("Edit post:", d.text)
       if (newText) {
-        await updateDoc(doc(db, "discussion", docSnap.id), { text: newText })
+        await updateDoc(doc(db, "discussion", docSnap.id), {
+          text: newText
+        })
       }
     }
 
+    /* DELETE */
     let del = document.createElement("button")
     del.innerText = "🗑️"
-    del.onclick = () => deleteDoc(doc(db, "discussion", docSnap.id))
+    del.onclick = async () => {
+      if (d.userId !== currentUser) return alert("Not your post")
+      await deleteDoc(doc(db, "discussion", docSnap.id))
+    }
 
-    box.append(img, p, like, edit, del)
-    discussionPosts.appendChild(box)
+    /* REPLY */
+    let replyBtn = document.createElement("button")
+    replyBtn.innerText = "💬"
+    replyBtn.onclick = () => reply(docSnap.id)
+
+    actions.append(like, replyBtn, edit, del)
+
+    /* REPLIES CONTAINER */
+    let repliesDiv = document.createElement("div")
+    loadReplies(docSnap.id, repliesDiv)
+
+    card.append(header, text, actions, repliesDiv)
+    container.appendChild(card)
   })
 })
 
-/* JOURNAL */
+/* ======================
+   REPLIES
+====================== */
 
-window.saveJournal = async function () {
-  await addDoc(collection(db, "journal"), {
-    text: journalText.value,
+async function reply(postId) {
+  let text = prompt("Reply:")
+  if (!text) return
+
+  await addDoc(collection(db, "replies"), {
+    postId,
+    text,
     user: localStorage.getItem("name"),
     time: Date.now()
   })
 }
 
-/* NOTES */
+function loadReplies(postId, container) {
+  const q = query(collection(db, "replies"), orderBy("time"))
+
+  onSnapshot(q, snap => {
+    container.innerHTML = ""
+
+    snap.forEach(doc => {
+      let r = doc.data()
+      if (r.postId === postId) {
+        let p = document.createElement("p")
+        p.innerText = "↳ " + r.user + ": " + r.text
+        p.style.marginLeft = "20px"
+        container.appendChild(p)
+      }
+    })
+  })
+}
+
+/* ======================
+   JOURNAL
+====================== */
+
+window.saveJournal = async function () {
+  let text = document.getElementById("journalText").value
+
+  await addDoc(collection(db, "journal"), {
+    text,
+    user: localStorage.getItem("name"),
+    time: Date.now()
+  })
+
+  document.getElementById("journalText").value = ""
+}
+
+const journalQ = query(collection(db, "journal"), orderBy("time"))
+
+onSnapshot(journalQ, snap => {
+  let div = document.getElementById("journalEntries")
+  div.innerHTML = ""
+
+  snap.forEach(doc => {
+    let d = doc.data()
+    let p = document.createElement("p")
+    p.innerText = d.user + ": " + d.text
+    div.appendChild(p)
+  })
+})
+
+/* ======================
+   NOTES
+====================== */
 
 window.saveNotes = function () {
-  localStorage.setItem("notes", notes.value)
-  profileNotes.innerText = notes.value
+  let val = document.getElementById("notes").value
+  localStorage.setItem("notes", val)
+  document.getElementById("profileNotes").innerText = val
 }
 
-/* MUSIC */
+function loadNotes() {
+  let val = localStorage.getItem("notes") || ""
+  document.getElementById("notes").value = val
+  document.getElementById("profileNotes").innerText = val
+}
+
+/* ======================
+   MUSIC
+====================== */
 
 window.addMusic = function () {
+  let link = document.getElementById("musicLink").value
+  if (!link) return
+
   let iframe = document.createElement("iframe")
-  let id = musicLink.value.split("v=")[1]
-  iframe.src = "https://www.youtube.com/embed/" + id
-  iframe.width = 300
-  iframe.height = 170
-  musicList.appendChild(iframe)
+
+  if (link.includes("youtube")) {
+    let id = link.split("v=")[1]
+    iframe.src = "https://www.youtube.com/embed/" + id
+  }
+
+  iframe.width = "100%"
+  iframe.height = "200"
+
+  document.getElementById("musicList").appendChild(iframe)
 }
 
-/* THEMES */
+/* ======================
+   THEMES (FULL)
+====================== */
 
 window.setTheme = function (t) {
-  if (t === "dark") document.body.style.background = "#222"
-  else if (t === "sage") document.body.style.background = "#d8e8d8"
-  else if (t === "ocean") document.body.style.background = "#aee1f9"
-  else if (t === "sunset") document.body.style.background = "#ffb347"
-  else document.body.style.background = "#ffe6f1"
+  document.body.style.transition = "all 0.5s ease"
+
+  if (t === "dark") {
+    document.body.style.background = "#121212"
+    document.body.style.color = "white"
+  }
+  else if (t === "sage") {
+    document.body.style.background = "#d8e8d8"
+    document.body.style.color = "#2f4f2f"
+  }
+  else if (t === "ocean") {
+    document.body.style.background = "#aee1f9"
+    document.body.style.color = "#034f84"
+  }
+  else if (t === "sunset") {
+    document.body.style.background = "#ffb347"
+    document.body.style.color = "#5a2a00"
+  }
+  else {
+    document.body.style.background = "#ffe6f1"
+    document.body.style.color = "#444"
+  }
 }
 
-/* NOTIFICATIONS */
+/* ======================
+   NOTIFICATIONS
+====================== */
 
 window.showNotifications = function () {
-  notifications.innerText = "✨ New activity coming soon!"
+  let box = document.getElementById("notifications")
+  box.style.display = box.style.display === "block" ? "none" : "block"
+  box.innerText = "✨ New features coming!"
 }
 
-/* PROFILE LOAD */
+/* ======================
+   STREAK
+====================== */
+
+function updateStreak() {
+  let today = new Date().toDateString()
+  let last = localStorage.getItem("last")
+
+  let streak = parseInt(localStorage.getItem("streak") || "0")
+
+  if (last !== today) {
+    streak++
+    localStorage.setItem("streak", streak)
+    localStorage.setItem("last", today)
+  }
+
+  document.getElementById("streak").innerText = "🔥 Streak: " + streak
+}
+
+/* ======================
+   START
+====================== */
 
 window.onload = () => {
   showSection("home")
-  profileName.innerText = localStorage.getItem("name")
-  profilePic.src = localStorage.getItem("avatar")
+  loadNotes()
+  updateStreak()
+
+  document.getElementById("profileName").innerText = localStorage.getItem("name")
+  document.getElementById("profilePic").src = localStorage.getItem("avatar")
 }
