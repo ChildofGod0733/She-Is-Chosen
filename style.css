@@ -1,138 +1,169 @@
-body{
-
-font-family: "Segoe UI", sans-serif;
-
-background:#ffe6f1;
-
-margin:0;
-
-text-align:center;
-
-color:#444;
-
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #ffe6f1;
+  margin: 0;
+  text-align: center;
+  color: #444;
 }
 
-header{
+/* HEADER */
 
-background:#ff9fc3;
-
-padding:25px;
-
-color:white;
-
+header {
+  background: linear-gradient(135deg, #ff9fc3, #ffd6ea);
+  padding: 30px 20px;
+  color: white;
 }
 
-nav button{
-
-background:#ffb6d5;
-
-border:none;
-
-padding:10px 16px;
-
-margin:5px;
-
-border-radius:20px;
-
+.verse {
+  font-style: italic;
+  margin-top: 10px;
 }
 
-.section{
+/* NAV BUTTONS */
 
-display:none;
-
-padding:20px;
-
+nav {
+  margin: 15px 0;
 }
+
+nav button {
+  background: #ffb6d5;
+  border: none;
+  padding: 10px 16px;
+  margin: 5px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+nav button:hover {
+  background: #ff8fbc;
+  transform: scale(1.05);
+}
+
+/* SECTIONS */
+
+.section {
+  display: none;
+  padding: 20px;
+  animation: fadeIn 0.4s ease;
+}
+
+/* BUTTONS */
+
+button {
+  cursor: pointer;
+}
+
+/* BIBLE LISTS */
 
 #bookList button,
-#chapterList button{
-
-background:#ffd6ea;
-
-border:none;
-
-padding:8px;
-
-margin:5px;
-
-border-radius:14px;
-
+#chapterList button {
+  background: #ffd6ea;
+  border: none;
+  padding: 8px 12px;
+  margin: 5px;
+  border-radius: 14px;
+  transition: 0.2s;
 }
 
-#verseList p{
-
-padding:8px;
-
-border-radius:10px;
-
-cursor:pointer;
-
+#bookList button:hover,
+#chapterList button:hover {
+  background: #ffc4df;
 }
 
-textarea{
+/* VERSES */
 
-width:80%;
-
-height:120px;
-
-border-radius:10px;
-
-border:1px solid #ddd;
-
-padding:10px;
-
+#verseList p {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-input{
-
-padding:10px;
-
-border-radius:15px;
-
-border:1px solid #ddd;
-
+#verseList p:hover {
+  background: #fff0f7;
 }
 
-.butterfly{
+/* INPUTS */
 
-position:fixed;
-
-left:10%;
-
-top:80%;
-
-font-size:30px;
-
-animation:float 10s infinite linear;
-
+textarea {
+  width: 80%;
+  height: 120px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-top: 10px;
 }
 
-.butterfly2{
-
-position:fixed;
-
-right:10%;
-
-top:60%;
-
-font-size:30px;
-
-animation:float2 12s infinite linear;
-
+input {
+  padding: 10px;
+  border-radius: 15px;
+  border: 1px solid #ddd;
+  margin: 5px;
 }
 
-@keyframes float{
+/* LOGIN BOX */
 
-0%{transform:translateY(0)}
-50%{transform:translateY(-200px)}
-100%{transform:translateY(0)}
-
+#loginScreen {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 260px;
+  margin: 40px auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-@keyframes float2{
+/* DISCUSSION + POSTS */
 
-0%{transform:translateY(0)}
-50%{transform:translateY(-150px)}
-100%{transform:translateY(0)}
+#discussionPosts p {
+  background: #fff;
+  margin: 8px auto;
+  padding: 10px;
+  border-radius: 12px;
+  width: 80%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
 
+/* MUSIC */
+
+iframe {
+  border-radius: 12px;
+  margin: 10px;
+}
+
+/* BUTTERFLIES 🦋 */
+
+.butterfly {
+  position: fixed;
+  left: 10%;
+  top: 80%;
+  font-size: 30px;
+  animation: float 10s infinite linear;
+}
+
+.butterfly2 {
+  position: fixed;
+  right: 10%;
+  top: 60%;
+  font-size: 30px;
+  animation: float2 12s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) }
+  50% { transform: translateY(-200px) }
+  100% { transform: translateY(0) }
+}
+
+@keyframes float2 {
+  0% { transform: translateY(0) }
+  50% { transform: translateY(-150px) }
+  100% { transform: translateY(0) }
+}
+
+/* FADE IN */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
