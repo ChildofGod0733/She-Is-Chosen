@@ -7,9 +7,7 @@ import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
-/* ======================
-   FIREBASE
-====================== */
+/* FIREBASE */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -22,49 +20,52 @@ const db = getFirestore(app)
 const auth = getAuth(app)
 
 let currentUser = null
+let bibleData = []
 
-/* ======================
-   LOGIN (FIXED)
-====================== */
+/* LOGIN (PERSISTENT FIXED) */
 
 window.login = async function () {
-  let email = document.getElementById("username").value + "@chosen.com"
-  let pass = document.getElementById("password").value
-  let name = document.getElementById("firstName").value
+  let email = username.value + "@chosen.com"
+  let pass = password.value
+  let name = firstName.value
 
-  if (!email || !pass) {
-    alert("Please fill everything")
-    return
-  }
+  let user
 
   try {
-    let user = await signInWithEmailAndPassword(auth, email, pass)
-    currentUser = user.user.uid
+    user = await signInWithEmailAndPassword(auth, email, pass)
   } catch {
-    let user = await createUserWithEmailAndPassword(auth, email, pass)
-    currentUser = user.user.uid
+    user = await createUserWithEmailAndPassword(auth, email, pass)
   }
+
+  currentUser = user.user.uid
 
   localStorage.setItem("name", name)
 
-  /* PROFILE IMAGE UPLOAD */
-  let file = document.getElementById("avatarUpload").files[0]
+  /* IMAGE UPLOAD */
+  let file = avatarUpload.files[0]
   if (file) {
     let reader = new FileReader()
     reader.onload = () => {
       localStorage.setItem("avatar", reader.result)
-      document.getElementById("profilePic").src = reader.result
+      profilePic.src = reader.result
     }
     reader.readAsDataURL(file)
   }
 
-  document.getElementById("profileName").innerText = name
-  document.getElementById("loginScreen").style.display = "none"
+  profileName.innerText = name
+
+  localStorage.setItem("loggedIn", "true")
+
+  loginScreen.style.display = "none"
 }
 
-/* ======================
-   NAVIGATION
-====================== */
+/* AUTO LOGIN */
+
+if (localStorage.getItem("loggedIn") === "true") {
+  loginScreen.style.display = "none"
+}
+
+/* NAV */
 
 window.showSection = function (id) {
   document.querySelectorAll(".section").forEach(s => s.style.display = "none")
@@ -72,323 +73,130 @@ window.showSection = function (id) {
 }
 
 /* ======================
-   DISCUSSION (FULL SYSTEM)
+   BIBLE (FULL UPGRADE)
 ====================== */
-
-window.postDiscussion = async function () {
-  let text = document.getElementById("discussionInput").value
-
-  if (!text) return
-
-  await addDoc(collection(db, "discussion"), {
-    text,
-    user: localStorage.getItem("name"),
-    avatar: localStorage.getItem("avatar"),
-    userId: currentUser,
-    likes: 0,
-    time: Date.now()
-  })
-
-  document.getElementById("discussionInput").value = ""
-}
-
-/* LOAD POSTS */
-
-const discussionQ = query(collection(db, "discussion"), orderBy("time"))
-
-onSnapshot(discussionQ, snapshot => {
-  let container = document.getElementById("discussionPosts")
-  container.innerHTML = ""
-
-  snapshot.forEach(docSnap => {
-    let d = docSnap.data()
-
-    let card = document.createElement("div")
-
-    /* PROFILE ROW */
-    let header = document.createElement("div")
-
-    let img = document.createElement("img")
-    img.src = d.avatar || ""
-    img.width = 30
-
-    let name = document.createElement("b")
-    name.innerText = d.user
-
-    header.append(img, name)
-
-    /* TEXT */
-    let text = document.createElement("p")
-    text.innerText = d.text
-
-    /* BUTTONS ROW */
-    let actions = document.createElement("div")
-
-    /* LIKE */
-    let like = document.createElement("button")
-    like.innerText = "❤️ " + (d.likes || 0)
-    like.onclick = () => {
-      updateDoc(doc(db, "discussion", docSnap.id), {
-        likes: increment(1)
-      })
-    }
-
-    /* EDIT */
-    let edit = document.createElement("button")
-    edit.innerText = "✏️"
-    edit.onclick = async () => {
-      if (d.userId !== currentUser) return alert("Not your post")
-      let newText = prompt("Edit post:", d.text)
-      if (newText) {
-        await updateDoc(doc(db, "discussion", docSnap.id), {
-          text: newText
-        })
-      }
-    }
-
-    /* DELETE */
-    let del = document.createElement("button")
-    del.innerText = "🗑️"
-    del.onclick = async () => {
-      if (d.userId !== currentUser) return alert("Not your post")
-      await deleteDoc(doc(db, "discussion", docSnap.id))
-    }
-
-    /* REPLY */
-    let replyBtn = document.createElement("button")
-    replyBtn.innerText = "💬"
-    replyBtn.onclick = () => reply(docSnap.id)
-
-    actions.append(like, replyBtn, edit, del)
-
-    /* REPLIES CONTAINER */
-    let repliesDiv = document.createElement("div")
-    loadReplies(docSnap.id, repliesDiv)
-
-    card.append(header, text, actions, repliesDiv)
-    container.appendChild(card)
-  })
-})
-
-/* ======================
-   REPLIES
-====================== */
-
-async function reply(postId) {
-  let text = prompt("Reply:")
-  if (!text) return
-
-  await addDoc(collection(db, "replies"), {
-    postId,
-    text,
-    user: localStorage.getItem("name"),
-    time: Date.now()
-  })
-}
-
-function loadReplies(postId, container) {
-  const q = query(collection(db, "replies"), orderBy("time"))
-
-  onSnapshot(q, snap => {
-    container.innerHTML = ""
-
-    snap.forEach(doc => {
-      let r = doc.data()
-      if (r.postId === postId) {
-        let p = document.createElement("p")
-        p.innerText = "↳ " + r.user + ": " + r.text
-        p.style.marginLeft = "20px"
-        container.appendChild(p)
-      }
-    })
-  })
-}
-
-/* ======================
-   JOURNAL
-====================== */
-
-window.saveJournal = async function () {
-  let text = document.getElementById("journalText").value
-
-  await addDoc(collection(db, "journal"), {
-    text,
-    user: localStorage.getItem("name"),
-    time: Date.now()
-  })
-
-  document.getElementById("journalText").value = ""
-}
-
-const journalQ = query(collection(db, "journal"), orderBy("time"))
-
-onSnapshot(journalQ, snap => {
-  let div = document.getElementById("journalEntries")
-  div.innerHTML = ""
-
-  snap.forEach(doc => {
-    let d = doc.data()
-    let p = document.createElement("p")
-    p.innerText = d.user + ": " + d.text
-    div.appendChild(p)
-  })
-})
-
-/* ======================
-   NOTES
-====================== */
-
-window.saveNotes = function () {
-  let val = document.getElementById("notes").value
-  localStorage.setItem("notes", val)
-  document.getElementById("profileNotes").innerText = val
-}
-
-function loadNotes() {
-  let val = localStorage.getItem("notes") || ""
-  document.getElementById("notes").value = val
-  document.getElementById("profileNotes").innerText = val
-}
-
-/* ======================
-   MUSIC
-====================== */
-
-window.addMusic = function () {
-  let link = document.getElementById("musicLink").value
-  if (!link) return
-
-  let iframe = document.createElement("iframe")
-
-  if (link.includes("youtube")) {
-    let id = link.split("v=")[1]
-    iframe.src = "https://www.youtube.com/embed/" + id
-  }
-
-  iframe.width = "100%"
-  iframe.height = "200"
-
-  document.getElementById("musicList").appendChild(iframe)
-}
-
-/* ======================
-   THEMES (FULL)
-====================== */
-
-window.setTheme = function (t) {
-  document.body.style.transition = "all 0.5s ease"
-
-  if (t === "dark") {
-    document.body.style.background = "#121212"
-    document.body.style.color = "white"
-  }
-  else if (t === "sage") {
-    document.body.style.background = "#d8e8d8"
-    document.body.style.color = "#2f4f2f"
-  }
-  else if (t === "ocean") {
-    document.body.style.background = "#aee1f9"
-    document.body.style.color = "#034f84"
-  }
-  else if (t === "sunset") {
-    document.body.style.background = "#ffb347"
-    document.body.style.color = "#5a2a00"
-  }
-  else {
-    document.body.style.background = "#ffe6f1"
-    document.body.style.color = "#444"
-  }
-}
-/* ======================
-   BIBLE (FIXED)
-====================== */
-
-let bibleData = []
 
 fetch("bible.json")
   .then(res => res.json())
   .then(data => {
     bibleData = data
     loadBooks()
+    verseOfDay()
   })
 
 function loadBooks() {
-  let div = document.getElementById("bookList")
-  if (!div) return
-
-  div.innerHTML = ""
-
+  bookList.innerHTML = ""
   bibleData.forEach(book => {
     let btn = document.createElement("button")
     btn.innerText = book.name
     btn.onclick = () => loadChapters(book)
-    div.appendChild(btn)
+    bookList.appendChild(btn)
   })
 }
 
 function loadChapters(book) {
-  let div = document.getElementById("chapterList")
-  div.innerHTML = ""
-
+  chapterList.innerHTML = ""
   book.chapters.forEach((chap, i) => {
     let btn = document.createElement("button")
     btn.innerText = "Chapter " + (i + 1)
     btn.onclick = () => loadVerses(book.name, i + 1, chap)
-    div.appendChild(btn)
+    chapterList.appendChild(btn)
   })
 }
 
 function loadVerses(bookName, chapterNum, chap) {
-  let div = document.getElementById("verseList")
-  div.innerHTML = ""
-
-  chap.forEach((verse, i) => {
+  verseList.innerHTML = ""
+  chap.forEach((v, i) => {
     let p = document.createElement("p")
-    p.innerText = `${bookName} ${chapterNum}:${i + 1} ${verse}`
+    p.innerText = `${bookName} ${chapterNum}:${i + 1} ${v}`
 
-    /* SAVE VERSE */
-    p.onclick = () => saveVerse(p.innerText)
+    p.onclick = () => {
+      p.style.background = "#ffd6ea"
+      saveVerse(p.innerText)
+    }
 
-    div.appendChild(p)
+    verseList.appendChild(p)
   })
 }
 
-/* SAVE VERSES */
-
-function saveVerse(text) {
-  let saved = JSON.parse(localStorage.getItem("favorites") || "[]")
-  saved.push(text)
-  localStorage.setItem("favorites", JSON.stringify(saved))
-
-  alert("Saved verse 💖")
-}
-/* ======================
-   NOTIFICATIONS
-====================== */
-
-window.showNotifications = function () {
-  let box = document.getElementById("notifications")
-  box.style.display = box.style.display === "block" ? "none" : "block"
-  box.innerText = "✨ New features coming!"
+function saveVerse(v) {
+  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+  fav.push(v)
+  localStorage.setItem("favorites", JSON.stringify(fav))
+  loadFavorites()
 }
 
+function loadFavorites() {
+  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+  profileFavorites.innerHTML = ""
+  fav.forEach(v => {
+    let p = document.createElement("p")
+    p.innerText = v
+    profileFavorites.appendChild(p)
+  })
+}
+
+/* SEARCH */
+
+window.searchBible = function () {
+  let term = searchInput.value.toLowerCase()
+  verseList.innerHTML = ""
+
+  bibleData.forEach(book => {
+    book.chapters.forEach((chap, i) => {
+      chap.forEach((v, j) => {
+        if (v.toLowerCase().includes(term)) {
+          let p = document.createElement("p")
+          p.innerText = `${book.name} ${i + 1}:${j + 1} ${v}`
+          verseList.appendChild(p)
+        }
+      })
+    })
+  })
+}
+
+/* VERSE OF DAY */
+
+function verseOfDay() {
+  let b = bibleData[Math.floor(Math.random() * bibleData.length)]
+  let c = b.chapters[Math.floor(Math.random() * b.chapters.length)]
+  let v = c[Math.floor(Math.random() * c.length)]
+
+  document.getElementById("verseOfDay").innerText = "🌿 " + v
+}
+
 /* ======================
-   STREAK
+   NOTES (FIXED)
 ====================== */
 
-function updateStreak() {
-  let today = new Date().toDateString()
-  let last = localStorage.getItem("last")
+window.saveNotes = function () {
+  localStorage.setItem("notes", notes.value)
+  loadNotes()
+}
 
-  let streak = parseInt(localStorage.getItem("streak") || "0")
+function loadNotes() {
+  let n = localStorage.getItem("notes") || ""
+  notes.value = n
+  profileNotes.innerText = n
+}
 
-  if (last !== today) {
-    streak++
-    localStorage.setItem("streak", streak)
-    localStorage.setItem("last", today)
-  }
+/* ======================
+   THEME (SAVED + GLOBAL)
+====================== */
 
-  document.getElementById("streak").innerText = "🔥 Streak: " + streak
+window.setTheme = function (t) {
+  localStorage.setItem("theme", t)
+  applyTheme(t)
+}
+
+function applyTheme(t) {
+  document.body.className = ""
+
+  if (t === "dark") document.body.classList.add("dark")
+  else if (t === "sage") document.body.classList.add("sage")
+  else if (t === "ocean") document.body.classList.add("ocean")
+  else if (t === "sunset") document.body.classList.add("sunset")
+  else document.body.classList.add("pink")
 }
 
 /* ======================
@@ -398,8 +206,10 @@ function updateStreak() {
 window.onload = () => {
   showSection("home")
   loadNotes()
-  updateStreak()
+  loadFavorites()
 
-  document.getElementById("profileName").innerText = localStorage.getItem("name")
-  document.getElementById("profilePic").src = localStorage.getItem("avatar")
+  profileName.innerText = localStorage.getItem("name")
+  profilePic.src = localStorage.getItem("avatar")
+
+  applyTheme(localStorage.getItem("theme") || "pink")
 }
