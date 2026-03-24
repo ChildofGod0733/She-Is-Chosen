@@ -212,7 +212,20 @@ onSnapshot(discussionQ, (snapshot) => {
         time: Date.now()
       })
     }
+window.replyToPost = async function (postId) {
+  let text = prompt("Write a reply:")
 
+  if (!text) return
+
+  let user = localStorage.getItem("name") || "Anonymous"
+
+  await addDoc(collection(db, "replies"), {
+    postId,
+    user,
+    text,
+    time: Date.now()
+  })
+}
     container.appendChild(p)
     container.appendChild(likeBtn)
 
