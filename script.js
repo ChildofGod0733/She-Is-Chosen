@@ -19,30 +19,33 @@ const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
 
-let currentUserId = null
-
-/* LOGIN */
+/* LOGIN FIXED */
 
 window.login = async function () {
-  let email = username.value + "@chosen.com"
-  let password = password.value
-  let name = firstName.value
-  let avatar = avatarURL.value
+  let email = document.getElementById("username").value + "@chosen.com"
+  let pass = document.getElementById("password").value
+  let name = document.getElementById("firstName").value
 
   try {
-    let user = await signInWithEmailAndPassword(auth, email, password)
-    currentUserId = user.user.uid
+    await signInWithEmailAndPassword(auth, email, pass)
   } catch {
-    let user = await createUserWithEmailAndPassword(auth, email, password)
-    currentUserId = user.user.uid
+    await createUserWithEmailAndPassword(auth, email, pass)
   }
 
   localStorage.setItem("name", name)
-  localStorage.setItem("avatar", avatar)
+
+  /* IMAGE UPLOAD */
+  let file = document.getElementById("avatarUpload").files[0]
+  if (file) {
+    let reader = new FileReader()
+    reader.onload = () => {
+      localStorage.setItem("avatar", reader.result)
+      profilePic.src = reader.result
+    }
+    reader.readAsDataURL(file)
+  }
 
   profileName.innerText = name
-  profilePic.src = avatar
-
   loginScreen.style.display = "none"
 }
 
@@ -53,29 +56,24 @@ window.showSection = function (id) {
   document.getElementById(id).style.display = "block"
 }
 
-/* ======================
-   DISCUSSION (EDIT + DELETE)
-====================== */
+/* DISCUSSION FULL */
 
 window.postDiscussion = async function () {
   await addDoc(collection(db, "discussion"), {
     text: discussionInput.value,
     user: localStorage.getItem("name"),
     avatar: localStorage.getItem("avatar"),
-    userId: currentUserId,
     likes: 0,
     time: Date.now()
   })
-
-  discussionInput.value = ""
 }
 
-const discussionQ = query(collection(db, "discussion"), orderBy("time"))
+const q = query(collection(db, "discussion"), orderBy("time"))
 
-onSnapshot(discussionQ, snapshot => {
+onSnapshot(q, snap => {
   discussionPosts.innerHTML = ""
 
-  snapshot.forEach(docSnap => {
+  snap.forEach(docSnap => {
     let d = docSnap.data()
 
     let box = document.createElement("div")
@@ -84,13 +82,9 @@ onSnapshot(discussionQ, snapshot => {
     img.src = d.avatar
     img.width = 30
 
-    let name = document.createElement("b")
-    name.innerText = d.user
+    let p = document.createElement("p")
+    p.innerText = d.user + ": " + d.text
 
-    let text = document.createElement("p")
-    text.innerText = d.text
-
-    /* LIKE */
     let like = document.createElement("button")
     like.innerText = "❤️ " + (d.likes || 0)
     like.onclick = () => {
@@ -99,74 +93,25 @@ onSnapshot(discussionQ, snapshot => {
       })
     }
 
-    /* EDIT */
-    let editBtn = document.createElement("button")
-    editBtn.innerText = "✏️"
-    editBtn.onclick = async () => {
-      let newText = prompt("Edit your post:", d.text)
+    let edit = document.createElement("button")
+    edit.innerText = "✏️"
+    edit.onclick = async () => {
+      let newText = prompt("Edit:", d.text)
       if (newText) {
-        await updateDoc(doc(db, "discussion", docSnap.id), {
-          text: newText
-        })
+        await updateDoc(doc(db, "discussion", docSnap.id), { text: newText })
       }
     }
 
-    /* DELETE */
-    let deleteBtn = document.createElement("button")
-    deleteBtn.innerText = "🗑️"
-    deleteBtn.onclick = async () => {
-      if (confirm("Delete this post?")) {
-        await deleteDoc(doc(db, "discussion", docSnap.id))
-      }
-    }
+    let del = document.createElement("button")
+    del.innerText = "🗑️"
+    del.onclick = () => deleteDoc(doc(db, "discussion", docSnap.id))
 
-    /* REPLY */
-    let replyBtn = document.createElement("button")
-    replyBtn.innerText = "Reply"
-    replyBtn.onclick = () => reply(docSnap.id)
-
-    let repliesDiv = document.createElement("div")
-    loadReplies(docSnap.id, repliesDiv)
-
-    box.append(img, name, text, like, editBtn, deleteBtn, replyBtn, repliesDiv)
+    box.append(img, p, like, edit, del)
     discussionPosts.appendChild(box)
   })
 })
 
-/* REPLIES */
-
-async function reply(postId) {
-  let text = prompt("Reply:")
-  if (!text) return
-
-  await addDoc(collection(db, "replies"), {
-    postId,
-    text,
-    user: localStorage.getItem("name"),
-    time: Date.now()
-  })
-}
-
-function loadReplies(postId, container) {
-  const q = query(collection(db, "replies"), orderBy("time"))
-
-  onSnapshot(q, snap => {
-    container.innerHTML = ""
-
-    snap.forEach(doc => {
-      let r = doc.data()
-      if (r.postId === postId) {
-        let p = document.createElement("p")
-        p.innerText = "↳ " + r.user + ": " + r.text
-        container.appendChild(p)
-      }
-    })
-  })
-}
-
-/* ======================
-   JOURNAL (RESTORED)
-====================== */
+/* JOURNAL */
 
 window.saveJournal = async function () {
   await addDoc(collection(db, "journal"), {
@@ -174,53 +119,46 @@ window.saveJournal = async function () {
     user: localStorage.getItem("name"),
     time: Date.now()
   })
-
-  journalText.value = ""
 }
 
-const journalQ = query(collection(db, "journal"), orderBy("time"))
-
-onSnapshot(journalQ, snap => {
-  journalEntries.innerHTML = ""
-
-  snap.forEach(doc => {
-    let d = doc.data()
-    let p = document.createElement("p")
-    p.innerText = d.user + ": " + d.text
-    journalEntries.appendChild(p)
-  })
-})
-
-/* ======================
-   NOTES (RESTORED)
-====================== */
+/* NOTES */
 
 window.saveNotes = function () {
   localStorage.setItem("notes", notes.value)
-  alert("Notes saved!")
+  profileNotes.innerText = notes.value
 }
 
-window.onload = function () {
-  showSection("home")
-  notes.value = localStorage.getItem("notes") || ""
-}
-
-/* ======================
-   MUSIC (RESTORED)
-====================== */
+/* MUSIC */
 
 window.addMusic = function () {
-  let link = musicLink.value
-
   let iframe = document.createElement("iframe")
-
-  if (link.includes("youtube")) {
-    let id = link.split("v=")[1]
-    iframe.src = "https://www.youtube.com/embed/" + id
-  }
-
-  iframe.width = "300"
-  iframe.height = "170"
-
+  let id = musicLink.value.split("v=")[1]
+  iframe.src = "https://www.youtube.com/embed/" + id
+  iframe.width = 300
+  iframe.height = 170
   musicList.appendChild(iframe)
+}
+
+/* THEMES */
+
+window.setTheme = function (t) {
+  if (t === "dark") document.body.style.background = "#222"
+  else if (t === "sage") document.body.style.background = "#d8e8d8"
+  else if (t === "ocean") document.body.style.background = "#aee1f9"
+  else if (t === "sunset") document.body.style.background = "#ffb347"
+  else document.body.style.background = "#ffe6f1"
+}
+
+/* NOTIFICATIONS */
+
+window.showNotifications = function () {
+  notifications.innerText = "✨ New activity coming soon!"
+}
+
+/* PROFILE LOAD */
+
+window.onload = () => {
+  showSection("home")
+  profileName.innerText = localStorage.getItem("name")
+  profilePic.src = localStorage.getItem("avatar")
 }
