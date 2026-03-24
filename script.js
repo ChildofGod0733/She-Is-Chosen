@@ -51,8 +51,6 @@ document.getElementById("loginScreen").style.display="none"
 
 }
 
-}
-
 document.getElementById("loginScreen").style.display="none"
 
 }
