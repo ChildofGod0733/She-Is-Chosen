@@ -47,6 +47,7 @@ window.login = async function () {
 
   profileName.innerText = name
   loginScreen.style.display = "none"
+  document.body.style.transition = "all 0.5s ease"
 }
 
 /* NAV */
