@@ -145,6 +145,30 @@ function loadFavorites() {
   let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
   profileFavorites.innerHTML = ""
 
+  fav.forEach((v, index) => {
+    let div = document.createElement("div")
+
+    let p = document.createElement("p")
+    p.innerText = v
+
+    let del = document.createElement("button")
+    del.innerText = "❌"
+    del.onclick = () => deleteVerse(index)
+
+    div.append(p, del)
+    profileFavorites.appendChild(div)
+  })
+}
+
+function deleteVerse(index) {
+  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+
+  fav.splice(index, 1)
+
+  localStorage.setItem("favorites", JSON.stringify(fav))
+  loadFavorites()
+}
+
   fav.forEach(v => {
     let p = document.createElement("p")
     p.innerText = v
