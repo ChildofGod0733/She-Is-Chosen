@@ -1,19 +1,17 @@
+// ======================
+// FIREBASE SETUP
+// ======================
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
 import {
   getFirestore, collection, addDoc, onSnapshot, query, orderBy,
   doc, updateDoc, deleteDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
-/* ======================
-   FIREBASE SETUP
-====================== */
-
+// ===== Replace YOUR_API_KEY etc with your Firebase config =====
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "she-is-chosen.firebaseapp.com",
@@ -27,17 +25,16 @@ const auth = getAuth(app)
 let currentUser = null
 let bibleData = []
 
-/* ======================
-   AUTH
-====================== */
+// ======================
+// LOGIN
+// ======================
 
 window.login = async function () {
-  let email = username.value + "@chosen.com"
-  let pass = password.value
-  let name = firstName.value
+  const email = username.value + "@chosen.com"
+  const pass = password.value
+  const name = firstName.value
 
   let user
-
   try {
     user = await signInWithEmailAndPassword(auth, email, pass)
   } catch {
@@ -45,12 +42,13 @@ window.login = async function () {
   }
 
   currentUser = user.user.uid
+  localStorage.setItem("loggedIn", "true")
   localStorage.setItem("name", name)
 
-  // avatar
-  let file = avatarUpload.files[0]
+  // PROFILE PIC
+  const file = avatarUpload.files[0]
   if (file) {
-    let reader = new FileReader()
+    const reader = new FileReader()
     reader.onload = () => {
       localStorage.setItem("avatar", reader.result)
       profilePic.src = reader.result
@@ -62,25 +60,36 @@ window.login = async function () {
   loginScreen.style.display = "none"
 }
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user.uid
+// AUTO LOGIN
+window.addEventListener("load", () => {
+  if (localStorage.getItem("loggedIn") === "true") {
     loginScreen.style.display = "none"
   }
+
+  profileName.innerText = localStorage.getItem("name")
+  const avatar = localStorage.getItem("avatar")
+  if (avatar) profilePic.src = avatar
+
+  applyTheme(localStorage.getItem("theme") || "pink")
+  showSection("home")
+  loadNotes()
+  loadFavorites()
+  updateStreak()
+  loadDevotional()
 })
 
-/* ======================
-   NAV
-====================== */
+// ======================
+// NAVIGATION
+// ======================
 
 window.showSection = function (id) {
   document.querySelectorAll(".section").forEach(s => s.style.display = "none")
   document.getElementById(id).style.display = "block"
 }
 
-/* ======================
-   BIBLE
-====================== */
+// ======================
+// BIBLE SYSTEM
+// ======================
 
 fetch("bible.json")
   .then(res => res.json())
@@ -91,9 +100,10 @@ fetch("bible.json")
   })
 
 function loadBooks() {
+  if (!bookList) return
   bookList.innerHTML = ""
   bibleData.forEach(book => {
-    let btn = document.createElement("button")
+    const btn = document.createElement("button")
     btn.innerText = book.name
     btn.onclick = () => loadChapters(book)
     bookList.appendChild(btn)
@@ -103,7 +113,7 @@ function loadBooks() {
 function loadChapters(book) {
   chapterList.innerHTML = ""
   book.chapters.forEach((chap, i) => {
-    let btn = document.createElement("button")
+    const btn = document.createElement("button")
     btn.innerText = "Chapter " + (i + 1)
     btn.onclick = () => loadVerses(book.name, i + 1, chap)
     chapterList.appendChild(btn)
@@ -112,47 +122,84 @@ function loadChapters(book) {
 
 function loadVerses(bookName, chapterNum, chap) {
   verseList.innerHTML = ""
-
   chap.forEach((v, i) => {
-    let p = document.createElement("p")
+    const p = document.createElement("p")
     p.innerText = `${bookName} ${chapterNum}:${i + 1} ${v}`
-
-    p.onclick = () => saveVerse(p.innerText)
-
+    p.onclick = () => {
+      p.style.background = "#ffd6ea"
+      saveVerse(p.innerText)
+    }
     verseList.appendChild(p)
   })
 }
 
-/* FAVORITES */
+// ======================
+// FAVORITES
+// ======================
 
 function saveVerse(v) {
-  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
   if (!fav.includes(v)) fav.push(v)
   localStorage.setItem("favorites", JSON.stringify(fav))
   loadFavorites()
 }
 
 function loadFavorites() {
-  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
   profileFavorites.innerHTML = ""
-
   fav.forEach((v, i) => {
-    let div = document.createElement("div")
-    div.innerHTML = `${v} <button onclick="deleteVerse(${i})">❌</button>`
+    const div = document.createElement("div")
+    const p = document.createElement("p")
+    p.innerText = v
+    const del = document.createElement("button")
+    del.innerText = "❌"
+    del.onclick = () => deleteVerse(i)
+    div.append(p, del)
     profileFavorites.appendChild(div)
   })
 }
 
-window.deleteVerse = function (i) {
-  let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-  fav.splice(i, 1)
+function deleteVerse(index) {
+  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
+  fav.splice(index, 1)
   localStorage.setItem("favorites", JSON.stringify(fav))
   loadFavorites()
 }
 
-/* ======================
-   NOTES
-====================== */
+// ======================
+// SEARCH
+// ======================
+
+window.searchBible = function () {
+  const term = searchInput.value.toLowerCase()
+  verseList.innerHTML = ""
+  bibleData.forEach(book => {
+    book.chapters.forEach((chap, i) => {
+      chap.forEach((v, j) => {
+        if (v.toLowerCase().includes(term)) {
+          const p = document.createElement("p")
+          p.innerText = `${book.name} ${i + 1}:${j + 1} ${v}`
+          verseList.appendChild(p)
+        }
+      })
+    })
+  })
+}
+
+// ======================
+// VERSE OF THE DAY
+// ======================
+
+function verseOfDay() {
+  const b = bibleData[Math.floor(Math.random() * bibleData.length)]
+  const c = b.chapters[Math.floor(Math.random() * b.chapters.length)]
+  const v = c[Math.floor(Math.random() * c.length)]
+  document.getElementById("verseOfDay").innerText = "🌿 " + v
+}
+
+// ======================
+// NOTES
+// ======================
 
 window.saveNotes = function () {
   localStorage.setItem("notes", notes.value)
@@ -160,35 +207,24 @@ window.saveNotes = function () {
 }
 
 window.deleteNotes = function () {
-  if (!confirm("Delete notes?")) return
+  if (!confirm("Delete your notes?")) return
   localStorage.removeItem("notes")
   notes.value = ""
   profileNotes.innerText = ""
 }
 
 function loadNotes() {
-  let n = localStorage.getItem("notes") || ""
+  const n = localStorage.getItem("notes") || ""
   notes.value = n
   profileNotes.innerText = n
 }
 
-/* SHARE NOTES */
-
-window.shareNote = async function () {
-  if (!notes.value) return
-
-  await addDoc(collection(db, "sharedNotes"), {
-    text: notes.value,
-    user: localStorage.getItem("name"),
-    time: Date.now()
-  })
-}
-
-/* ======================
-   JOURNAL
-====================== */
+// ======================
+// JOURNAL
+// ======================
 
 window.saveJournal = async function () {
+  if (!journalText.value) return
   await addDoc(collection(db, "journal"), {
     text: journalText.value,
     user: localStorage.getItem("name"),
@@ -197,109 +233,111 @@ window.saveJournal = async function () {
   journalText.value = ""
 }
 
-const journalQ = query(collection(db, "journal"), orderBy("time"))
+// ======================
+// MUSIC
+// ======================
 
-onSnapshot(journalQ, snap => {
-  journalEntries.innerHTML = ""
-  snap.forEach(doc => {
-    let d = doc.data()
-    let div = document.createElement("div")
-    div.innerText = d.user + ": " + d.text
-    journalEntries.appendChild(div)
-  })
-})
-
-/* ======================
-   DISCUSSION + NOTIFS
-====================== */
-
-function sendNotification(text) {
-  addDoc(collection(db, "notifications"), {
-    text,
-    time: Date.now()
-  })
+window.addMusic = function () {
+  const link = musicLink.value
+  if (!link) return
+  const iframe = document.createElement("iframe")
+  if (link.includes("youtube")) {
+    const id = link.split("v=")[1]?.split("&")[0]
+    iframe.src = "https://www.youtube.com/embed/" + id
+  }
+  iframe.width = "100%"
+  iframe.height = "200"
+  musicList.appendChild(iframe)
+  musicLink.value = ""
 }
+
+// ======================
+// DISCUSSION
+// ======================
 
 window.postDiscussion = async function () {
   if (!discussionInput.value) return
-
   await addDoc(collection(db, "discussion"), {
     text: discussionInput.value,
     user: localStorage.getItem("name"),
+    avatar: localStorage.getItem("avatar"),
     userId: currentUser,
     likes: 0,
     time: Date.now()
   })
-
-  sendNotification(localStorage.getItem("name") + " posted 💬")
   discussionInput.value = ""
 }
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
-
-onSnapshot(discussionQ, snap => {
+onSnapshot(discussionQ, snapshot => {
   discussionPosts.innerHTML = ""
-
-  snap.forEach(docSnap => {
-    let d = docSnap.data()
-
-    let div = document.createElement("div")
-    div.innerHTML = `
-      <p>${d.user}: ${d.text}</p>
-      <button onclick="likePost('${docSnap.id}')">❤️ ${d.likes || 0}</button>
-    `
-
-    discussionPosts.appendChild(div)
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data()
+    const card = document.createElement("div")
+    const p = document.createElement("p")
+    p.innerText = d.user + ": " + d.text
+    const like = document.createElement("button")
+    like.innerText = "❤️ " + (d.likes || 0)
+    like.onclick = () => updateDoc(doc(db, "discussion", docSnap.id), { likes: increment(1) })
+    const edit = document.createElement("button")
+    edit.innerText = "✏️"
+    edit.onclick = async () => {
+      if (d.userId !== currentUser) return
+      const t = prompt("Edit:", d.text)
+      if (t) updateDoc(doc(db, "discussion", docSnap.id), { text: t })
+    }
+    const del = document.createElement("button")
+    del.innerText = "🗑️"
+    del.onclick = () => {
+      if (d.userId !== currentUser) return
+      deleteDoc(doc(db, "discussion", docSnap.id))
+    }
+    card.append(p, like, edit, del)
+    discussionPosts.appendChild(card)
   })
 })
 
-window.likePost = function (id) {
-  updateDoc(doc(db, "discussion", id), {
-    likes: increment(1)
-  })
-}
-
-/* ======================
-   STREAK
-====================== */
+// ======================
+// STREAK + DEVOTIONAL
+// ======================
 
 function updateStreak() {
-  let today = new Date().toDateString()
-  let last = localStorage.getItem("lastVisit")
-  let count = parseInt(localStorage.getItem("streak") || "0")
-
+  const today = new Date().toDateString()
+  const last = localStorage.getItem("lastVisit")
+  let streak = parseInt(localStorage.getItem("streak") || "0")
   if (last !== today) {
-    count++
-    localStorage.setItem("streak", count)
+    streak++
+    localStorage.setItem("streak", streak)
     localStorage.setItem("lastVisit", today)
   }
-
-  document.getElementById("streak").innerText = "🔥 " + count
+  document.getElementById("streak").innerText = "🔥 Streak: " + streak
+  showReward(streak)
 }
 
-/* ======================
-   THEMES
-====================== */
+function showReward(streak) {
+  let msg = ""
+  if (streak === 3) msg = "🌸 3 days!"
+  else if (streak === 7) msg = "✨ 1 week!"
+  else if (streak === 30) msg = "🔥 30 days!!"
+  document.getElementById("streakReward").innerText = msg
+}
 
-window.setTheme = function (theme) {
+function loadDevotional() {
+  const devos = ["You are chosen 💖","God is with you 🌿","Be strong today ✨","You are loved 💕","Do not fear 🙏"]
+  const d = devos[new Date().getDate() % devos.length]
+  document.getElementById("devotionalCard").innerText = d
+}
+
+// ======================
+// THEMES
+// ======================
+
+window.setTheme = function(theme) {
   localStorage.setItem("theme", theme)
-  document.body.className = theme
+  applyTheme(theme)
 }
 
-/* ======================
-   START
-====================== */
-
-window.onload = () => {
-  showSection("home")
-  loadNotes()
-  loadFavorites()
-  updateStreak()
-
-  profileName.innerText = localStorage.getItem("name") || "User"
-
-  let avatar = localStorage.getItem("avatar")
-  if (avatar) profilePic.src = avatar
-
-  document.body.className = localStorage.getItem("theme") || "pink"
+function applyTheme(theme) {
+  document.body.className = ""
+  document.body.classList.add(theme)
 }
