@@ -69,7 +69,10 @@ window.addEventListener("load", () => {
     loginScreen.style.display = "none"
   }
 })
-
+let avatar = localStorage.getItem("avatar")
+if (avatar) {
+  profilePic.src = avatar
+}
 /* ======================
    NAVIGATION
 ====================== */
