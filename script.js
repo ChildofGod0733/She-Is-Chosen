@@ -11,7 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
 
 /* ======================
-   FIREBASE
+   FIREBASE SETUP
 ====================== */
 
 const firebaseConfig = {
@@ -28,7 +28,7 @@ let currentUser = null
 let bibleData = []
 
 /* ======================
-   LOGIN
+   AUTH
 ====================== */
 
 window.login = async function () {
@@ -45,10 +45,9 @@ window.login = async function () {
   }
 
   currentUser = user.user.uid
-
   localStorage.setItem("name", name)
 
-  // Profile pic
+  // avatar
   let file = avatarUpload.files[0]
   if (file) {
     let reader = new FileReader()
@@ -63,7 +62,6 @@ window.login = async function () {
   loginScreen.style.display = "none"
 }
 
-/* AUTO LOGIN (REAL FIX) */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user.uid
@@ -72,7 +70,7 @@ onAuthStateChanged(auth, (user) => {
 })
 
 /* ======================
-   NAVIGATION
+   NAV
 ====================== */
 
 window.showSection = function (id) {
@@ -81,7 +79,7 @@ window.showSection = function (id) {
 }
 
 /* ======================
-   BIBLE SYSTEM
+   BIBLE
 ====================== */
 
 fetch("bible.json")
@@ -93,9 +91,7 @@ fetch("bible.json")
   })
 
 function loadBooks() {
-  if (!bookList) return
   bookList.innerHTML = ""
-
   bibleData.forEach(book => {
     let btn = document.createElement("button")
     btn.innerText = book.name
@@ -121,10 +117,7 @@ function loadVerses(bookName, chapterNum, chap) {
     let p = document.createElement("p")
     p.innerText = `${bookName} ${chapterNum}:${i + 1} ${v}`
 
-    p.onclick = () => {
-      p.style.background = "#ffd6ea"
-      saveVerse(p.innerText)
-    }
+    p.onclick = () => saveVerse(p.innerText)
 
     verseList.appendChild(p)
   })
@@ -134,11 +127,7 @@ function loadVerses(bookName, chapterNum, chap) {
 
 function saveVerse(v) {
   let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-
-  if (!fav.includes(v)) {
-    fav.push(v)
-  }
-
+  if (!fav.includes(v)) fav.push(v)
   localStorage.setItem("favorites", JSON.stringify(fav))
   loadFavorites()
 }
@@ -147,55 +136,18 @@ function loadFavorites() {
   let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
   profileFavorites.innerHTML = ""
 
-  fav.forEach((v, index) => {
+  fav.forEach((v, i) => {
     let div = document.createElement("div")
-
-    let p = document.createElement("p")
-    p.innerText = v
-
-    let del = document.createElement("button")
-    del.innerText = "❌"
-    del.onclick = () => deleteVerse(index)
-
-    div.append(p, del)
+    div.innerHTML = `${v} <button onclick="deleteVerse(${i})">❌</button>`
     profileFavorites.appendChild(div)
   })
 }
 
-function deleteVerse(index) {
+window.deleteVerse = function (i) {
   let fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-  fav.splice(index, 1)
+  fav.splice(i, 1)
   localStorage.setItem("favorites", JSON.stringify(fav))
   loadFavorites()
-}
-
-/* SEARCH */
-
-window.searchBible = function () {
-  let term = searchInput.value.toLowerCase()
-  verseList.innerHTML = ""
-
-  bibleData.forEach(book => {
-    book.chapters.forEach((chap, i) => {
-      chap.forEach((v, j) => {
-        if (v.toLowerCase().includes(term)) {
-          let p = document.createElement("p")
-          p.innerText = `${book.name} ${i + 1}:${j + 1} ${v}`
-          verseList.appendChild(p)
-        }
-      })
-    })
-  })
-}
-
-/* VERSE OF DAY */
-
-function verseOfDay() {
-  let b = bibleData[Math.floor(Math.random() * bibleData.length)]
-  let c = b.chapters[Math.floor(Math.random() * b.chapters.length)]
-  let v = c[Math.floor(Math.random() * c.length)]
-
-  document.getElementById("verseOfDay").innerText = "🌿 " + v
 }
 
 /* ======================
@@ -208,7 +160,7 @@ window.saveNotes = function () {
 }
 
 window.deleteNotes = function () {
-  if (!confirm("Delete your notes?")) return
+  if (!confirm("Delete notes?")) return
   localStorage.removeItem("notes")
   notes.value = ""
   profileNotes.innerText = ""
@@ -218,6 +170,18 @@ function loadNotes() {
   let n = localStorage.getItem("notes") || ""
   notes.value = n
   profileNotes.innerText = n
+}
+
+/* SHARE NOTES */
+
+window.shareNote = async function () {
+  if (!notes.value) return
+
+  await addDoc(collection(db, "sharedNotes"), {
+    text: notes.value,
+    user: localStorage.getItem("name"),
+    time: Date.now()
+  })
 }
 
 /* ======================
@@ -233,28 +197,28 @@ window.saveJournal = async function () {
   journalText.value = ""
 }
 
+const journalQ = query(collection(db, "journal"), orderBy("time"))
+
+onSnapshot(journalQ, snap => {
+  journalEntries.innerHTML = ""
+  snap.forEach(doc => {
+    let d = doc.data()
+    let div = document.createElement("div")
+    div.innerText = d.user + ": " + d.text
+    journalEntries.appendChild(div)
+  })
+})
+
 /* ======================
-   MUSIC
+   DISCUSSION + NOTIFS
 ====================== */
 
-window.addMusic = function () {
-  let link = musicLink.value
-  let iframe = document.createElement("iframe")
-
-  if (link.includes("youtube")) {
-    let id = link.split("v=")[1]?.split("&")[0]
-    iframe.src = "https://www.youtube.com/embed/" + id
-  }
-
-  iframe.width = "100%"
-  iframe.height = "200"
-
-  musicList.appendChild(iframe)
+function sendNotification(text) {
+  addDoc(collection(db, "notifications"), {
+    text,
+    time: Date.now()
+  })
 }
-
-/* ======================
-   DISCUSSION
-====================== */
 
 window.postDiscussion = async function () {
   if (!discussionInput.value) return
@@ -262,55 +226,38 @@ window.postDiscussion = async function () {
   await addDoc(collection(db, "discussion"), {
     text: discussionInput.value,
     user: localStorage.getItem("name"),
-    avatar: localStorage.getItem("avatar"),
     userId: currentUser,
     likes: 0,
     time: Date.now()
   })
 
+  sendNotification(localStorage.getItem("name") + " posted 💬")
   discussionInput.value = ""
 }
 
 const discussionQ = query(collection(db, "discussion"), orderBy("time"))
 
-onSnapshot(discussionQ, snapshot => {
+onSnapshot(discussionQ, snap => {
   discussionPosts.innerHTML = ""
 
-  snapshot.forEach(docSnap => {
+  snap.forEach(docSnap => {
     let d = docSnap.data()
 
-    let card = document.createElement("div")
+    let div = document.createElement("div")
+    div.innerHTML = `
+      <p>${d.user}: ${d.text}</p>
+      <button onclick="likePost('${docSnap.id}')">❤️ ${d.likes || 0}</button>
+    `
 
-    let p = document.createElement("p")
-    p.innerText = d.user + ": " + d.text
-
-    let like = document.createElement("button")
-    like.innerText = "❤️ " + (d.likes || 0)
-    like.onclick = () => {
-      updateDoc(doc(db, "discussion", docSnap.id), {
-        likes: increment(1)
-      })
-    }
-
-    let edit = document.createElement("button")
-    edit.innerText = "✏️"
-    edit.onclick = async () => {
-      if (d.userId !== currentUser) return
-      let t = prompt("Edit:", d.text)
-      if (t) updateDoc(doc(db, "discussion", docSnap.id), { text: t })
-    }
-
-    let del = document.createElement("button")
-    del.innerText = "🗑️"
-    del.onclick = () => {
-      if (d.userId !== currentUser) return
-      deleteDoc(doc(db, "discussion", docSnap.id))
-    }
-
-    card.append(p, like, edit, del)
-    discussionPosts.appendChild(card)
+    discussionPosts.appendChild(div)
   })
 })
+
+window.likePost = function (id) {
+  updateDoc(doc(db, "discussion", id), {
+    likes: increment(1)
+  })
+}
 
 /* ======================
    STREAK
@@ -319,15 +266,15 @@ onSnapshot(discussionQ, snapshot => {
 function updateStreak() {
   let today = new Date().toDateString()
   let last = localStorage.getItem("lastVisit")
-  let streakCount = parseInt(localStorage.getItem("streak") || "0")
+  let count = parseInt(localStorage.getItem("streak") || "0")
 
   if (last !== today) {
-    streakCount++
-    localStorage.setItem("streak", streakCount)
+    count++
+    localStorage.setItem("streak", count)
     localStorage.setItem("lastVisit", today)
   }
 
-  document.getElementById("streak").innerText = "🔥 Streak: " + streakCount
+  document.getElementById("streak").innerText = "🔥 " + count
 }
 
 /* ======================
@@ -336,12 +283,7 @@ function updateStreak() {
 
 window.setTheme = function (theme) {
   localStorage.setItem("theme", theme)
-  applyTheme(theme)
-}
-
-function applyTheme(theme) {
-  document.body.className = ""
-  document.body.classList.add(theme)
+  document.body.className = theme
 }
 
 /* ======================
@@ -359,5 +301,5 @@ window.onload = () => {
   let avatar = localStorage.getItem("avatar")
   if (avatar) profilePic.src = avatar
 
-  applyTheme(localStorage.getItem("theme") || "pink")
+  document.body.className = localStorage.getItem("theme") || "pink"
 }
