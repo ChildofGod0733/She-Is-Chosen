@@ -658,9 +658,17 @@ function loadDevotional() {
    THEMES
 ====================== */
 
-window.setTheme = function (t) {
-  localStorage.setItem("theme", t)
-  document.body.className = t
+window.setTheme = function (theme) {
+  localStorage.setItem("theme", theme)
+  applyTheme(theme)
+}
+
+function applyTheme(theme) {
+
+  document.body.className = ""  // reset EVERYTHING
+
+  document.body.classList.add(theme)
+
 }
 
 /* ======================
