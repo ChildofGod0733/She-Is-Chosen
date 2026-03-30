@@ -190,3 +190,39 @@ body {
 body {
   padding-bottom: 90px;
 }
+/* THEMES */
+
+body.pink {
+  background: #ffe6f1;
+  color: #444;
+}
+
+body.dark {
+  background: #121212;
+  color: white;
+}
+
+body.sage {
+  background: #d8e8d8;
+  color: #2f4f2f;
+}
+
+body.ocean {
+  background: #aee1f9;
+  color: #034f84;
+}
+
+body.sunset {
+  background: #ffb347;
+  color: #5a2a00;
+}
+
+/* MAKE EVERYTHING FOLLOW THEME */
+
+header,
+.section,
+.bottom-nav,
+#devotionalCard {
+  background: inherit;
+  color: inherit;
+}
