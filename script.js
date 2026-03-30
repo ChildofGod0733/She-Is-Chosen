@@ -740,7 +740,9 @@ window.onload = () => {
   loadDevotional()
 
   profileName.innerText = localStorage.getItem("name")
-  profilePic.src = localStorage.getItem("avatar")
 
-  document.body.className = localStorage.getItem("theme") || "pink"
+  let avatar = localStorage.getItem("avatar")
+  if (avatar) profilePic.src = avatar
+
+  applyTheme(localStorage.getItem("theme") || "pink")
 }
