@@ -190,12 +190,19 @@ window.saveNotes = function () {
   loadNotes()
 }
 
+window.deleteNotes = function () {
+  if (!confirm("Delete your notes?")) return
+
+  localStorage.removeItem("notes")
+  notes.value = ""
+  profileNotes.innerText = ""
+}
+
 function loadNotes() {
   let n = localStorage.getItem("notes") || ""
   notes.value = n
   profileNotes.innerText = n
 }
-
 /* ======================
    JOURNAL
 ====================== */
