@@ -29,6 +29,7 @@ let bibleData = []
 ====================== */
 
 window.login = async function () {
+
   let email = username.value + "@chosen.com"
   let pass = password.value
   let name = firstName.value
@@ -43,10 +44,10 @@ window.login = async function () {
 
   currentUser = user.user.uid
 
-  localStorage.setItem("name", name)
   localStorage.setItem("loggedIn", "true")
+  localStorage.setItem("name", name)
 
-  /* PROFILE IMAGE */
+  /* PROFILE PIC SAVE */
   let file = avatarUpload.files[0]
   if (file) {
     let reader = new FileReader()
@@ -58,14 +59,16 @@ window.login = async function () {
   }
 
   profileName.innerText = name
+
   loginScreen.style.display = "none"
 }
 
-/* AUTO LOGIN */
-
-if (localStorage.getItem("loggedIn") === "true") {
-  loginScreen.style.display = "none"
-}
+/* AUTO LOGIN FIX */
+window.addEventListener("load", () => {
+  if (localStorage.getItem("loggedIn") === "true") {
+    loginScreen.style.display = "none"
+  }
+})
 
 /* ======================
    NAVIGATION
