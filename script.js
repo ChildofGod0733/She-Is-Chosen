@@ -1,343 +1,1339 @@
-// ======================
-// FIREBASE SETUP
-// ======================
+/* =====================================================
+   SHE IS CHOSEN
+   MAIN SCRIPT
+===================================================== */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
-import {
-  getFirestore, collection, addDoc, onSnapshot, query, orderBy,
-  doc, updateDoc, deleteDoc, increment
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
-import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-// ===== Replace YOUR_API_KEY etc with your Firebase config =====
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
+  deleteDoc,
+  increment,
+  where
+} from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "she-is-chosen.firebaseapp.com",
-  projectId: "she-is-chosen"
-}
+  projectId: "she-is-chosen",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
-const auth = getAuth(app)
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-let currentUser = null
-let bibleData = []
 
-// ======================
-// LOGIN
-// ======================
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
+let currentUser = null;
+let bibleData = [];
+
+const $ = id => document.getElementById(id);
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
 
 window.login = async function () {
-  const email = username.value + "@chosen.com"
-  const pass = password.value
-  const name = firstName.value
 
-  let user
+  const name = $("firstName").value.trim();
+  const usernameValue = $("username").value.trim();
+  const passwordValue = $("password").value;
+
+  if (!name || !usernameValue || !passwordValue) {
+    alert("Please fill in your name, username, and password. 🌸");
+    return;
+  }
+
+  const email =
+    usernameValue.toLowerCase().replace(/\s/g, "") + "@chosen.com";
+
   try {
-    user = await signInWithEmailAndPassword(auth, email, pass)
-  } catch {
-    user = await createUserWithEmailAndPassword(auth, email, pass)
-  }
 
-  currentUser = user.user.uid
-  localStorage.setItem("loggedIn", "true")
-  localStorage.setItem("name", name)
+    let result;
 
-  // PROFILE PIC
-  const file = avatarUpload.files[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = () => {
-      localStorage.setItem("avatar", reader.result)
-      profilePic.src = reader.result
+    try {
+      result = await signInWithEmailAndPassword(
+        auth,
+        email,
+        passwordValue
+      );
+    } catch (signInError) {
+
+      if (
+        signInError.code === "auth/user-not-found" ||
+        signInError.code === "auth/invalid-credential"
+      ) {
+
+        result = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          passwordValue
+        );
+
+      } else {
+        throw signInError;
+      }
     }
-    reader.readAsDataURL(file)
+
+    currentUser = result.user.uid;
+
+    localStorage.setItem("name", name);
+
+    const file = $("avatarUpload").files[0];
+
+    if (file) {
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+
+        localStorage.setItem(
+          "avatar",
+          reader.result
+        );
+
+        if ($("profilePic")) {
+          $("profilePic").src = reader.result;
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    updateProfileDisplay();
+
+    $("loginScreen").style.display = "none";
+
+    alert("Welcome to She is Chosen! 🌸🦋");
+
+  } catch (error) {
+
+    console.error("Login error:", error);
+
+    alert(
+      "We couldn't log you in. Please check your information and try again. 💕"
+    );
+  }
+};
+
+
+/* =====================================================
+   AUTH STATE
+===================================================== */
+
+onAuthStateChanged(auth, user => {
+
+  if (user) {
+
+    currentUser = user.uid;
+
+    $("loginScreen").style.display = "none";
+
+    updateProfileDisplay();
+
+  } else {
+
+    currentUser = null;
+
+    $("loginScreen").style.display = "block";
+  }
+});
+
+
+/* =====================================================
+   PROFILE DISPLAY
+===================================================== */
+
+function updateProfileDisplay() {
+
+  const name =
+    localStorage.getItem("name") || "Chosen Girl";
+
+  const avatar =
+    localStorage.getItem("avatar");
+
+  if ($("profileName")) {
+    $("profileName").innerText = name;
   }
 
-  profileName.innerText = name
-  loginScreen.style.display = "none"
+  if (avatar && $("profilePic")) {
+    $("profilePic").src = avatar;
+  }
 }
 
-// AUTO LOGIN
-window.addEventListener("load", () => {
-  if (localStorage.getItem("loggedIn") === "true") {
-    loginScreen.style.display = "none"
-  }
 
-  profileName.innerText = localStorage.getItem("name")
-  const avatar = localStorage.getItem("avatar")
-  if (avatar) profilePic.src = avatar
-
-  applyTheme(localStorage.getItem("theme") || "pink")
-  showSection("home")
-  loadNotes()
-  loadFavorites()
-  updateStreak()
-  loadDevotional()
-})
-
-// ======================
-// NAVIGATION
-// ======================
+/* =====================================================
+   NAVIGATION
+===================================================== */
 
 window.showSection = function (id) {
-  document.querySelectorAll(".section").forEach(s => s.style.display = "none")
-  document.getElementById(id).style.display = "block"
+
+  const sections =
+    document.querySelectorAll(".section");
+
+  sections.forEach(section => {
+    section.style.display = "none";
+  });
+
+  const selected =
+    $(id);
+
+  if (!selected) {
+    console.error("Section not found:", id);
+    return;
+  }
+
+  selected.style.display = "block";
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+};
+
+
+/* =====================================================
+   BIBLE
+===================================================== */
+
+async function loadBible() {
+
+  try {
+
+    const response =
+      await fetch("bible.json");
+
+    if (!response.ok) {
+      throw new Error("Bible file could not be loaded.");
+    }
+
+    bibleData =
+      await response.json();
+
+    loadBooks();
+    verseOfDay();
+
+  } catch (error) {
+
+    console.error("Bible error:", error);
+
+    if ($("verseList")) {
+      $("verseList").innerText =
+        "The Bible couldn't load. Please make sure bible.json is in the same folder as your website.";
+    }
+  }
 }
 
-// ======================
-// BIBLE SYSTEM
-// ======================
-
-fetch("bible.json")
-  .then(res => res.json())
-  .then(data => {
-    bibleData = data
-    loadBooks()
-    verseOfDay()
-  })
 
 function loadBooks() {
-  if (!bookList) return
-  bookList.innerHTML = ""
+
+  const container =
+    $("bookList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
   bibleData.forEach(book => {
-    const btn = document.createElement("button")
-    btn.innerText = book.name
-    btn.onclick = () => loadChapters(book)
-    bookList.appendChild(btn)
-  })
+
+    const button =
+      document.createElement("button");
+
+    button.innerText =
+      book.name;
+
+    button.addEventListener("click", () => {
+      loadChapters(book);
+    });
+
+    container.appendChild(button);
+  });
 }
+
 
 function loadChapters(book) {
-  chapterList.innerHTML = ""
-  book.chapters.forEach((chap, i) => {
-    const btn = document.createElement("button")
-    btn.innerText = "Chapter " + (i + 1)
-    btn.onclick = () => loadVerses(book.name, i + 1, chap)
-    chapterList.appendChild(btn)
-  })
+
+  const container =
+    $("chapterList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  book.chapters.forEach((chapter, index) => {
+
+    const button =
+      document.createElement("button");
+
+    button.innerText =
+      "Chapter " + (index + 1);
+
+    button.addEventListener("click", () => {
+
+      loadVerses(
+        book.name,
+        index + 1,
+        chapter
+      );
+
+    });
+
+    container.appendChild(button);
+  });
 }
 
-function loadVerses(bookName, chapterNum, chap) {
-  verseList.innerHTML = ""
-  chap.forEach((v, i) => {
-    const p = document.createElement("p")
-    p.innerText = `${bookName} ${chapterNum}:${i + 1} ${v}`
-    p.onclick = () => {
-      p.style.background = "#ffd6ea"
-      saveVerse(p.innerText)
-    }
-    verseList.appendChild(p)
-  })
+
+function loadVerses(bookName, chapterNumber, chapter) {
+
+  const container =
+    $("verseList");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  chapter.forEach((verse, index) => {
+
+    const p =
+      document.createElement("p");
+
+    const reference =
+      `${bookName} ${chapterNumber}:${index + 1}`;
+
+    p.innerText =
+      `${reference} — ${verse}`;
+
+    p.title =
+      "Click to save this verse 💖";
+
+    p.addEventListener("click", () => {
+
+      p.style.background =
+        "var(--rose-light)";
+
+      saveVerse(
+        `${reference} — ${verse}`
+      );
+
+    });
+
+    container.appendChild(p);
+  });
 }
 
-// ======================
-// FAVORITES
-// ======================
 
-function saveVerse(v) {
-  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-  if (!fav.includes(v)) fav.push(v)
-  localStorage.setItem("favorites", JSON.stringify(fav))
-  loadFavorites()
-}
-
-function loadFavorites() {
-  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-  profileFavorites.innerHTML = ""
-  fav.forEach((v, i) => {
-    const div = document.createElement("div")
-    const p = document.createElement("p")
-    p.innerText = v
-    const del = document.createElement("button")
-    del.innerText = "❌"
-    del.onclick = () => deleteVerse(i)
-    div.append(p, del)
-    profileFavorites.appendChild(div)
-  })
-}
-
-function deleteVerse(index) {
-  const fav = JSON.parse(localStorage.getItem("favorites") || "[]")
-  fav.splice(index, 1)
-  localStorage.setItem("favorites", JSON.stringify(fav))
-  loadFavorites()
-}
-
-// ======================
-// SEARCH
-// ======================
+/* =====================================================
+   SEARCH BIBLE
+===================================================== */
 
 window.searchBible = function () {
-  const term = searchInput.value.toLowerCase()
-  verseList.innerHTML = ""
-  bibleData.forEach(book => {
-    book.chapters.forEach((chap, i) => {
-      chap.forEach((v, j) => {
-        if (v.toLowerCase().includes(term)) {
-          const p = document.createElement("p")
-          p.innerText = `${book.name} ${i + 1}:${j + 1} ${v}`
-          verseList.appendChild(p)
-        }
-      })
-    })
-  })
-}
 
-// ======================
-// VERSE OF THE DAY
-// ======================
+  const input =
+    $("searchInput");
+
+  const container =
+    $("verseList");
+
+  if (!input || !container) return;
+
+  const term =
+    input.value.trim().toLowerCase();
+
+  container.innerHTML = "";
+
+  if (!term) {
+    container.innerText =
+      "Type something to search the Bible. 📖";
+    return;
+  }
+
+  let found = 0;
+
+  bibleData.forEach(book => {
+
+    book.chapters.forEach((chapter, chapterIndex) => {
+
+      chapter.forEach((verse, verseIndex) => {
+
+        if (
+          verse.toLowerCase().includes(term)
+        ) {
+
+          found++;
+
+          const p =
+            document.createElement("p");
+
+          p.innerText =
+            `${book.name} ${chapterIndex + 1}:${verseIndex + 1} — ${verse}`;
+
+          p.addEventListener("click", () => {
+            saveVerse(p.innerText);
+            p.style.background =
+              "var(--rose-light)";
+          });
+
+          container.appendChild(p);
+        }
+      });
+    });
+  });
+
+  if (found === 0) {
+    container.innerText =
+      "No verses found. Try another word. 🌿";
+  }
+};
+
+
+/* =====================================================
+   VERSE OF THE DAY
+===================================================== */
 
 function verseOfDay() {
-  const b = bibleData[Math.floor(Math.random() * bibleData.length)]
-  const c = b.chapters[Math.floor(Math.random() * b.chapters.length)]
-  const v = c[Math.floor(Math.random() * c.length)]
-  document.getElementById("verseOfDay").innerText = "🌿 " + v
+
+  if (!bibleData.length) return;
+
+  const book =
+    bibleData[
+      Math.floor(Math.random() * bibleData.length)
+    ];
+
+  const chapter =
+    book.chapters[
+      Math.floor(
+        Math.random() * book.chapters.length
+      )
+    ];
+
+  const verse =
+    chapter[
+      Math.floor(Math.random() * chapter.length)
+    ];
+
+  if ($("verseOfDay")) {
+    $("verseOfDay").innerText =
+      "🌿 " + verse;
+  }
 }
 
-// ======================
-// NOTES
-// ======================
+
+/* =====================================================
+   SAVED VERSES
+===================================================== */
+
+function saveVerse(verse) {
+
+  const favorites =
+    JSON.parse(
+      localStorage.getItem("favorites") || "[]"
+    );
+
+  if (!favorites.includes(verse)) {
+
+    favorites.push(verse);
+
+    localStorage.setItem(
+      "favorites",
+      JSON.stringify(favorites)
+    );
+
+    loadFavorites();
+
+  } else {
+
+    alert("You've already saved this verse. 🌸");
+  }
+}
+
+
+function loadFavorites() {
+
+  const container =
+    $("profileFavorites");
+
+  if (!container) return;
+
+  const favorites =
+    JSON.parse(
+      localStorage.getItem("favorites") || "[]"
+    );
+
+  container.innerHTML = "";
+
+  if (!favorites.length) {
+
+    container.innerText =
+      "Your saved verses will appear here. 📖";
+
+    return;
+  }
+
+  favorites.forEach((verse, index) => {
+
+    const div =
+      document.createElement("div");
+
+    const p =
+      document.createElement("p");
+
+    p.innerText =
+      verse;
+
+    const button =
+      document.createElement("button");
+
+    button.innerText =
+      "❌ Remove";
+
+    button.addEventListener("click", () => {
+      deleteVerse(index);
+    });
+
+    div.appendChild(p);
+    div.appendChild(button);
+
+    container.appendChild(div);
+  });
+}
+
+
+function deleteVerse(index) {
+
+  const favorites =
+    JSON.parse(
+      localStorage.getItem("favorites") || "[]"
+    );
+
+  favorites.splice(index, 1);
+
+  localStorage.setItem(
+    "favorites",
+    JSON.stringify(favorites)
+  );
+
+  loadFavorites();
+}
+
+
+/* =====================================================
+   NOTES
+===================================================== */
 
 window.saveNotes = function () {
-  localStorage.setItem("notes", notes.value)
-  loadNotes()
-}
 
-window.deleteNotes = function () {
-  if (!confirm("Delete your notes?")) return
-  localStorage.removeItem("notes")
-  notes.value = ""
-  profileNotes.innerText = ""
-}
+  const note =
+    $("notes").value;
+
+  localStorage.setItem(
+    "notes",
+    note
+  );
+
+  loadNotes();
+
+  alert("Notes saved! 🌿");
+};
+
 
 function loadNotes() {
-  const n = localStorage.getItem("notes") || ""
-  notes.value = n
-  profileNotes.innerText = n
+
+  const note =
+    localStorage.getItem("notes") || "";
+
+  if ($("notes")) {
+    $("notes").value = note;
+  }
+
+  if ($("profileNotes")) {
+    $("profileNotes").innerText =
+      note || "No notes saved yet.";
+  }
 }
 
-// ======================
-// JOURNAL
-// ======================
+
+window.deleteNotes = function () {
+
+  if (
+    !confirm("Delete all your notes? 🌸")
+  ) {
+    return;
+  }
+
+  localStorage.removeItem("notes");
+
+  loadNotes();
+};
+
+
+/* =====================================================
+   SHARED NOTES
+===================================================== */
+
+window.shareNote = async function () {
+
+  if (!currentUser) {
+    alert("Please log in first. 💕");
+    return;
+  }
+
+  const text =
+    $("notes").value.trim();
+
+  if (!text) {
+    alert("Write something in your notes first! 🌿");
+    return;
+  }
+
+  try {
+
+    await addDoc(
+      collection(db, "sharedNotes"),
+      {
+        text: text,
+        user:
+          localStorage.getItem("name") ||
+          "Chosen Girl",
+        userId: currentUser,
+        time: Date.now()
+      }
+    );
+
+    alert("Your note was shared! 🦋");
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Your note couldn't be shared. Check your Firebase setup."
+    );
+  }
+};
+
+
+/* =====================================================
+   JOURNAL
+===================================================== */
 
 window.saveJournal = async function () {
-  if (!journalText.value) return
-  await addDoc(collection(db, "journal"), {
-    text: journalText.value,
-    user: localStorage.getItem("name"),
-    time: Date.now()
-  })
-  journalText.value = ""
-}
 
-// ======================
-// MUSIC
-// ======================
+  if (!currentUser) {
+    alert("Please log in first. 💕");
+    return;
+  }
+
+  const text =
+    $("journalText").value.trim();
+
+  if (!text) {
+    alert("Write something in your journal first. 🌸");
+    return;
+  }
+
+  try {
+
+    await addDoc(
+      collection(db, "journal"),
+      {
+        text: text,
+        user:
+          localStorage.getItem("name") ||
+          "Chosen Girl",
+        userId: currentUser,
+        time: Date.now()
+      }
+    );
+
+    $("journalText").value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Journal entry couldn't be saved. Check Firebase."
+    );
+  }
+};
+
+
+const journalQuery =
+  query(
+    collection(db, "journal"),
+    orderBy("time", "desc")
+  );
+
+
+onSnapshot(
+  journalQuery,
+  snapshot => {
+
+    const container =
+      $("journalEntries");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    snapshot.forEach(docSnap => {
+
+      const data =
+        docSnap.data();
+
+      const div =
+        document.createElement("div");
+
+      const date =
+        new Date(data.time)
+          .toLocaleString();
+
+      div.innerText =
+        `${data.user} • ${date}\n\n${data.text}`;
+
+      container.appendChild(div);
+    });
+
+  },
+  error => {
+    console.error(
+      "Journal listener error:",
+      error
+    );
+  }
+);
+
+
+/* =====================================================
+   MUSIC
+===================================================== */
 
 window.addMusic = function () {
-  const link = musicLink.value
-  if (!link) return
-  const iframe = document.createElement("iframe")
-  if (link.includes("youtube")) {
-    const id = link.split("v=")[1]?.split("&")[0]
-    iframe.src = "https://www.youtube.com/embed/" + id
-  }
-  iframe.width = "100%"
-  iframe.height = "200"
-  musicList.appendChild(iframe)
-  musicLink.value = ""
-}
 
-// ======================
-// DISCUSSION
-// ======================
+  const input =
+    $("musicLink");
+
+  const container =
+    $("musicList");
+
+  const link =
+    input.value.trim();
+
+  if (!link) {
+    alert("Paste a YouTube link first. 🎧");
+    return;
+  }
+
+  let videoId = null;
+
+  try {
+
+    const url =
+      new URL(link);
+
+    if (
+      url.hostname.includes("youtube.com")
+    ) {
+
+      videoId =
+        url.searchParams.get("v");
+
+    } else if (
+      url.hostname.includes("youtu.be")
+    ) {
+
+      videoId =
+        url.pathname.substring(1);
+
+    }
+
+  } catch {
+
+    alert("That doesn't look like a valid YouTube link.");
+    return;
+  }
+
+  if (!videoId) {
+
+    alert(
+      "I couldn't find the YouTube video in that link."
+    );
+
+    return;
+  }
+
+  const iframe =
+    document.createElement("iframe");
+
+  iframe.src =
+    `https://www.youtube.com/embed/${videoId}`;
+
+  iframe.allow =
+    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+
+  iframe.allowFullscreen =
+    true;
+
+  container.appendChild(iframe);
+
+  input.value = "";
+};
+
+
+/* =====================================================
+   DISCUSSION
+===================================================== */
 
 window.postDiscussion = async function () {
-  if (!discussionInput.value) return
-  await addDoc(collection(db, "discussion"), {
-    text: discussionInput.value,
-    user: localStorage.getItem("name"),
-    avatar: localStorage.getItem("avatar"),
-    userId: currentUser,
-    likes: 0,
-    time: Date.now()
-  })
-  discussionInput.value = ""
+
+  if (!currentUser) {
+    alert("Please log in first. 💕");
+    return;
+  }
+
+  const text =
+    $("discussionInput").value.trim();
+
+  if (!text) return;
+
+  try {
+
+    await addDoc(
+      collection(db, "discussion"),
+      {
+        text: text,
+        user:
+          localStorage.getItem("name") ||
+          "Chosen Girl",
+        avatar:
+          localStorage.getItem("avatar") || "",
+        userId: currentUser,
+        likes: 0,
+        time: Date.now()
+      }
+    );
+
+    $("discussionInput").value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Your post couldn't be published. Check Firebase."
+    );
+  }
+};
+
+
+const discussionQuery =
+  query(
+    collection(db, "discussion"),
+    orderBy("time", "asc")
+  );
+
+
+onSnapshot(
+  discussionQuery,
+  snapshot => {
+
+    const container =
+      $("discussionPosts");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    snapshot.forEach(docSnap => {
+
+      const data =
+        docSnap.data();
+
+      const card =
+        document.createElement("div");
+
+      const p =
+        document.createElement("p");
+
+      p.innerText =
+        `${data.user}: ${data.text}`;
+
+      const like =
+        document.createElement("button");
+
+      like.innerText =
+        `❤️ ${data.likes || 0}`;
+
+      like.addEventListener("click", () => {
+
+        updateDoc(
+          doc(
+            db,
+            "discussion",
+            docSnap.id
+          ),
+          {
+            likes: increment(1)
+          }
+        );
+      });
+
+
+      const edit =
+        document.createElement("button");
+
+      edit.innerText =
+        "✏️ Edit";
+
+      edit.addEventListener(
+        "click",
+        async () => {
+
+          if (
+            data.userId !== currentUser
+          ) {
+            alert(
+              "You can only edit your own posts."
+            );
+            return;
+          }
+
+          const edited =
+            prompt(
+              "Edit your post:",
+              data.text
+            );
+
+          if (
+            edited === null ||
+            !edited.trim()
+          ) {
+            return;
+          }
+
+          await updateDoc(
+            doc(
+              db,
+              "discussion",
+              docSnap.id
+            ),
+            {
+              text: edited.trim()
+            }
+          );
+        }
+      );
+
+
+      const remove =
+        document.createElement("button");
+
+      remove.innerText =
+        "🗑️ Delete";
+
+      remove.addEventListener(
+        "click",
+        async () => {
+
+          if (
+            data.userId !== currentUser
+          ) {
+            alert(
+              "You can only delete your own posts."
+            );
+            return;
+          }
+
+          if (
+            !confirm(
+              "Delete this post?"
+            )
+          ) {
+            return;
+          }
+
+          await deleteDoc(
+            doc(
+              db,
+              "discussion",
+              docSnap.id
+            )
+          );
+        }
+      );
+
+
+      card.appendChild(p);
+      card.appendChild(like);
+
+      if (
+        data.userId === currentUser
+      ) {
+        card.appendChild(edit);
+        card.appendChild(remove);
+      }
+
+      container.appendChild(card);
+    });
+
+  },
+  error => {
+    console.error(
+      "Discussion listener error:",
+      error
+    );
+  }
+);
+
+
+/* =====================================================
+   SHARED NOTES FEED
+===================================================== */
+
+const sharedNotesQuery =
+  query(
+    collection(db, "sharedNotes"),
+    orderBy("time", "desc")
+  );
+
+
+onSnapshot(
+  sharedNotesQuery,
+  snapshot => {
+
+    const container =
+      $("sharedNotes");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    snapshot.forEach(docSnap => {
+
+      const data =
+        docSnap.data();
+
+      const div =
+        document.createElement("div");
+
+      div.innerText =
+        `${data.user}: ${data.text}`;
+
+      container.appendChild(div);
+    });
+
+  },
+  error => {
+    console.error(
+      "Shared notes error:",
+      error
+    );
+  }
+);
+
+
+/* =====================================================
+   NOTIFICATIONS
+===================================================== */
+
+let notificationCount = 0;
+let notificationsLoaded = false;
+
+
+const notificationQuery =
+  query(
+    collection(db, "notifications"),
+    orderBy("time", "desc")
+  );
+
+
+onSnapshot(
+  notificationQuery,
+  snapshot => {
+
+    if (!notificationsLoaded) {
+      notificationsLoaded = true;
+      return;
+    }
+
+    notificationCount =
+      snapshot.size;
+
+    updateNotificationBell();
+  }
+);
+
+
+function updateNotificationBell() {
+
+  const bell =
+    $("notifBell");
+
+  if (!bell) return;
+
+  if (notificationCount > 0) {
+
+    bell.innerText =
+      `🔔 ${notificationCount}`;
+
+  } else {
+
+    bell.innerText =
+      "🔔";
+  }
 }
 
-const discussionQ = query(collection(db, "discussion"), orderBy("time"))
-onSnapshot(discussionQ, snapshot => {
-  discussionPosts.innerHTML = ""
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data()
-    const card = document.createElement("div")
-    const p = document.createElement("p")
-    p.innerText = d.user + ": " + d.text
-    const like = document.createElement("button")
-    like.innerText = "❤️ " + (d.likes || 0)
-    like.onclick = () => updateDoc(doc(db, "discussion", docSnap.id), { likes: increment(1) })
-    const edit = document.createElement("button")
-    edit.innerText = "✏️"
-    edit.onclick = async () => {
-      if (d.userId !== currentUser) return
-      const t = prompt("Edit:", d.text)
-      if (t) updateDoc(doc(db, "discussion", docSnap.id), { text: t })
-    }
-    const del = document.createElement("button")
-    del.innerText = "🗑️"
-    del.onclick = () => {
-      if (d.userId !== currentUser) return
-      deleteDoc(doc(db, "discussion", docSnap.id))
-    }
-    card.append(p, like, edit, del)
-    discussionPosts.appendChild(card)
-  })
-})
 
-// ======================
-// STREAK + DEVOTIONAL
-// ======================
+window.showNotifications = function () {
+
+  const container =
+    $("notifications");
+
+  if (!container) return;
+
+  if (
+    container.style.display === "block"
+  ) {
+
+    container.style.display =
+      "none";
+
+    return;
+  }
+
+  container.style.display =
+    "block";
+
+  container.innerHTML =
+    "<p>Notifications 🌸</p>";
+
+  const q =
+    query(
+      collection(db, "notifications"),
+      orderBy("time", "desc")
+    );
+
+  onSnapshot(
+    q,
+    snapshot => {
+
+      container.innerHTML = "";
+
+      if (snapshot.empty) {
+
+        container.innerHTML =
+          "<p>No notifications yet. 🌿</p>";
+
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+
+        const data =
+          docSnap.data();
+
+        const p =
+          document.createElement("p");
+
+        p.innerText =
+          data.text;
+
+        container.appendChild(p);
+      });
+    }
+  );
+};
+
+
+/* =====================================================
+   STREAK
+===================================================== */
 
 function updateStreak() {
-  const today = new Date().toDateString()
-  const last = localStorage.getItem("lastVisit")
-  let streak = parseInt(localStorage.getItem("streak") || "0")
-  if (last !== today) {
-    streak++
-    localStorage.setItem("streak", streak)
-    localStorage.setItem("lastVisit", today)
+
+  const today =
+    new Date().toDateString();
+
+  const lastVisit =
+    localStorage.getItem("lastVisit");
+
+  let count =
+    parseInt(
+      localStorage.getItem("streak") || "0",
+      10
+    );
+
+
+  if (lastVisit !== today) {
+
+    count++;
+
+    localStorage.setItem(
+      "streak",
+      count
+    );
+
+    localStorage.setItem(
+      "lastVisit",
+      today
+    );
   }
-  document.getElementById("streak").innerText = "🔥 Streak: " + streak
-  showReward(streak)
+
+
+  const streakElement =
+    $("streak");
+
+  if (streakElement) {
+
+    streakElement.innerText =
+      `🔥 Streak: ${count}`;
+  }
 }
 
-function showReward(streak) {
-  let msg = ""
-  if (streak === 3) msg = "🌸 3 days!"
-  else if (streak === 7) msg = "✨ 1 week!"
-  else if (streak === 30) msg = "🔥 30 days!!"
-  document.getElementById("streakReward").innerText = msg
-}
+
+/* =====================================================
+   DEVOTIONAL
+===================================================== */
 
 function loadDevotional() {
-  const devos = ["You are chosen 💖","God is with you 🌿","Be strong today ✨","You are loved 💕","Do not fear 🙏"]
-  const d = devos[new Date().getDate() % devos.length]
-  document.getElementById("devotionalCard").innerText = d
+
+  const devos = [
+    "You are chosen 💖",
+    "God is with you 🌿",
+    "Be strong today ✨",
+    "You are loved 🌸",
+    "Do not fear 🙏"
+  ];
+
+  const devotional =
+    devos[
+      new Date().getDate() %
+      devos.length
+    ];
+
+  const element =
+    $("devotionalCard");
+
+  if (element) {
+    element.innerText =
+      devotional;
+  }
 }
 
-// ======================
-// THEMES
-// ======================
 
-window.setTheme = function(theme) {
-  localStorage.setItem("theme", theme)
-  applyTheme(theme)
-}
+/* =====================================================
+   THEMES
+===================================================== */
+
+window.setTheme = function (theme) {
+
+  const allowedThemes = [
+    "pink",
+    "dark",
+    "sage",
+    "ocean",
+    "sunset"
+  ];
+
+  if (
+    !allowedThemes.includes(theme)
+  ) {
+    theme = "pink";
+  }
+
+  localStorage.setItem(
+    "theme",
+    theme
+  );
+
+  applyTheme(theme);
+};
+
 
 function applyTheme(theme) {
-  document.body.className = ""
-  document.body.classList.add(theme)
+
+  const allowedThemes = [
+    "pink",
+    "dark",
+    "sage",
+    "ocean",
+    "sunset"
+  ];
+
+  if (
+    !allowedThemes.includes(theme)
+  ) {
+    theme = "pink";
+  }
+
+  document.body.classList.remove(
+    "pink",
+    "dark",
+    "sage",
+    "ocean",
+    "sunset"
+  );
+
+  document.body.classList.add(
+    theme
+  );
 }
+
+
+/* =====================================================
+   START APP
+===================================================== */
+
+function startApp() {
+
+  showSection("home");
+
+  loadNotes();
+  loadFavorites();
+  updateStreak();
+  loadDevotional();
+  updateProfileDisplay();
+
+  const savedTheme =
+    localStorage.getItem("theme") ||
+    "pink";
+
+  applyTheme(savedTheme);
+
+  loadBible();
+}
+
+
+window.addEventListener(
+  "DOMContentLoaded",
+  startApp
+);
